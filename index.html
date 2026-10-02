@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cup Theory</title>
+  <meta name="description" content="An interactive coffee guide: pour your own drinks, peel a coffee cherry, and roast a bean." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- shared SVG patterns -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <pattern id="bubbles" width="18" height="12" patternUnits="userSpaceOnUse">
+        <circle cx="4" cy="4" r="2.2" fill="#000" opacity=".05" />
+        <circle cx="13" cy="8" r="1.5" fill="#000" opacity=".05" />
+        <circle cx="9" cy="2" r="1" fill="#000" opacity=".04" />
+      </pattern>
+      <radialGradient id="beanShine" cx="35%" cy="30%" r="60%">
+        <stop offset="0" stop-color="#fff" stop-opacity=".55" />
+        <stop offset="1" stop-color="#fff" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <nav class="nav">
+    <a class="brand" href="#top">Cup Theory</a>
+    <div class="nav-links">
+      <a href="#pour">Pour</a>
+      <a href="#drinks">Drinks</a>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#roast">Roast</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-text">
+      <p class="eyebrow">An interactive coffee guide</p>
+      <h1>What’s actually<br />in your cup?</h1>
+      <p class="lede">Pour your own drinks and watch the ratios form. Peel a coffee cherry down to the seed. Roast a bean until it cracks.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#pour">Start pouring</a>
+        <a class="btn" href="#anatomy">Peel a cherry</a>
+      </div>
+    </div>
+    <button class="hero-cup" id="heroCup" type="button" aria-label="Show the next drink">
+      <span class="hero-cup-art" id="heroCupArt"></span>
+      <span class="hero-cup-name" id="heroCupName"></span>
+      <span class="hero-cup-hint">tap for another</span>
+    </button>
+  </header>
+
+  <main>
+    <!-- 01 POUR LAB -->
+    <section class="section" id="pour">
+      <div class="section-head">
+        <p class="eyebrow">01 · Pour Lab</p>
+        <h2>Pour your own</h2>
+        <p>Hold a pitcher to pour and let go to stop. Hold <strong>Sip</strong> to drink from the top down. <strong>Stir</strong> it to see what it looks like mixed.</p>
+      </div>
+
+      <div class="lab">
+        <div class="pitchers" id="pitchers" role="group" aria-label="Ingredients: hold to pour"></div>
+
+        <div class="stage">
+          <div class="seg" id="cupPicker" role="radiogroup" aria-label="Cup size"></div>
+          <div class="cup-wrap" id="cupWrap">
+            <svg id="cupSvg" viewBox="0 0 300 330" role="img" aria-label="Your cup">
+              <defs id="cupDefs"></defs>
+              <g id="cupLayers" clip-path="url(#labClip)"></g>
+              <g id="guideLines"></g>
+              <g id="cupOutline"></g>
+              <g id="stream" class="stream">
+                <rect id="streamBody" x="0" y="0" width="7" height="0" rx="3.5" />
+                <line id="streamFlow" x1="0" y1="0" x2="0" y2="0" />
+              </g>
+              <g id="drips"></g>
+              <g id="steam" class="steam">
+                <path d="M120,60 q-8,-14 0,-28 q8,-14 0,-28" />
+                <path d="M145,64 q-8,-14 0,-28 q8,-14 0,-28" />
+                <path d="M170,60 q-8,-14 0,-28 q8,-14 0,-28" />
+              </g>
+            </svg>
+            <div class="tooltip" id="cupTip" hidden></div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          </div>
+          <div class="cup-actions">
+            <button class="btn btn-sm" id="sipBtn" type="button">☕ Hold to sip</button>
+            <button class="btn btn-sm" id="stirBtn" type="button" aria-pressed="false">🥄 Stir</button>
+            <button class="btn btn-sm" id="undoBtn" type="button">↶ Undo</button>
+            <button class="btn btn-sm" id="emptyBtn" type="button">Empty</button>
+          </div>
+        </div>
+
+        <aside class="readout">
+          <label class="field">
+            <span>Follow a recipe</span>
+            <select id="recipeSelect"><option value="">Free pour</option></select>
+          </label>
+          <p class="recipe-hint" id="recipeHint" hidden></p>
+
+          <div class="volume">
+            <div class="volume-row"><strong id="volNow">0</strong><span> / <span id="volCap">0</span> ml</span></div>
+            <div class="meter"><div class="meter-fill" id="volFill"></div></div>
+          </div>
+
+          <div>
+            <h3 class="mini-title">Ratio</h3>
+            <div class="ratio-bar" id="ratioBar"><span class="ratio-empty">empty cup</span></div>
+            <p class="ratio-text" id="ratioText"></p>
+          </div>
+
+          <ul class="amounts" id="amounts"></ul>
+
+          <div class="match" id="match" aria-live="polite"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 02 DRINK GUIDE -->
+    <section class="section" id="drinks">
+      <div class="section-head">
+        <p class="eyebrow">02 · Drink Guide</p>
+        <h2>Every drink, to scale</h2>
+        <p>Hover or tap a card to watch it get built. Cups are drawn at their real relative sizes.</p>
+      </div>
+      <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
+      <div class="drink-grid" id="drinkGrid"></div>
+    </section>
+
+    <!-- 03 ANATOMY -->
+    <section class="section" id="anatomy">
+      <div class="section-head">
+        <p class="eyebrow">03 · Bean Anatomy</p>
+        <h2>A coffee bean is a seed</h2>
+        <p>Before it’s roasted, it’s wrapped in layers of fruit and husk. Tap any layer to learn what it is, or peel the cherry the way a farm does.</p>
+      </div>
+
+      <div class="anatomy">
+        <div class="anatomy-figure">
+          <div class="anatomy-svg-wrap">
+            <svg id="anatomySvg" viewBox="0 0 400 420" role="img" aria-label="Cross-section of a coffee cherry"></svg>
+            <p class="anatomy-caption" id="anatomyCaption">Tap a layer</p>
+          </div>
+          <div class="process">
+            <div class="process-head">
+              <label for="stageSlider" class="mini-title">Processing</label>
+              <div class="process-btns">
+                <button class="btn btn-sm" id="peelBtn" type="button">Peel next layer →</button>
+                <button class="btn btn-sm" id="peaberryBtn" type="button" aria-pressed="false">Peaberry</button>
+              </div>
+            </div>
+            <input type="range" id="stageSlider" min="0" max="4" step="1" value="0" />
+            <ol class="stage-ticks" id="stageTicks"></ol>
+            <p class="stage-text" id="stageText"></p>
+          </div>
+        </div>
+
+        <div class="anatomy-info">
+          <ol class="layer-list" id="layerList"></ol>
+          <article class="layer-card" id="layerCard" aria-live="polite"></article>
+        </div>
+      </div>
+
+      <div class="facts">
+        <div class="fact"><h3>Peaberry</h3><p>In roughly 5–10% of cherries only one seed develops. It grows round instead of flat. Hit the Peaberry button to see one.</p></div>
+        <div class="fact"><h3>The center cut</h3><p>The S-shaped crease down a roasted bean is where the edges of the seed folded in as it grew.</p></div>
+        <div class="fact"><h3>It’s a fruit</h3><p>Coffee grows on <em>Coffea</em> shrubs, which are in the same plant family as gardenias. The “beans” are the seeds of its cherries.</p></div>
+      </div>
+    </section>
+
+    <!-- 04 ROAST -->
+    <section class="section" id="roast">
+      <div class="section-head">
+        <p class="eyebrow">04 · Roast</p>
+        <h2>Turn up the heat</h2>
+        <p>Hold the burner to roast a green bean. Listen for <strong>first crack</strong> around 196 °C and <strong>second crack</strong> around 224 °C. Or just drag the thermometer.</p>
+      </div>
+
+      <div class="roaster">
+        <div class="roast-stage">
+          <div class="roast-bean-wrap" id="roastBeanWrap">
+            <svg id="roastBean" viewBox="0 0 240 280" aria-hidden="true">
+              <g id="roastSmoke" class="smoke"></g>
+              <g id="roastBeanBody">
+                <ellipse id="beanFill" cx="120" cy="150" rx="74" ry="102" />
+                <path id="beanCrease" d="M120,52 C96,100 146,150 112,200 C104,214 118,236 120,250" />
+                <ellipse cx="120" cy="150" rx="74" ry="102" fill="url(#beanShine)" id="beanOil" />
+              </g>
+              <g id="roastParticles"></g>
+            </svg>
+            <div class="flames" id="flames" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="roast-controls">
+            <button class="btn btn-primary burner" id="heatBtn" type="button">🔥 Hold to roast</button>
+            <button class="btn btn-sm" id="roastReset" type="button">New green bean</button>
+            <button class="btn btn-sm" id="soundBtn" type="button" aria-pressed="true">🔊 Sound on</button>
+          </div>
+        </div>
+
+        <div class="roast-info">
+          <div class="thermo">
+            <label for="tempSlider" class="mini-title">Bean temperature</label>
+            <div class="thermo-row"><strong id="tempNow">20</strong><span>°C</span></div>
+            <input type="range" id="tempSlider" min="20" max="260" step="1" value="20" />
+            <div class="thermo-marks"><span style="--at:.733">1st crack</span><span style="--at:.85">2nd crack</span></div>
+          </div>
+          <h3 class="roast-name" id="roastName">Green</h3>
+          <p class="roast-note" id="roastNote"></p>
+          <div class="flavor-meters" id="flavorMeters"></div>
+          <div class="best-for" id="bestFor"></div>
+          <aside class="myth">
+            <h3>Myth: dark roast has more caffeine</h3>
+            <p>Roasting barely touches caffeine. Dark beans lose more water and get lighter and puffier, so a <em>scoop</em> of light roast has a little more caffeine, while by <em>weight</em> dark roast edges ahead. Either way the difference is tiny. “Strong” tasting isn’t the same as more caffeine.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Cup Theory · recipes and numbers are typical café values, and every shop does it a little differently.</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
