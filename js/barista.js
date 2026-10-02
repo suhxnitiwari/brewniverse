@@ -4,6 +4,7 @@ import { CUPS } from './data.js';
 import { GRINDS } from './world-data.js';
 import { BOTTOM, CX, geometry, outlineMarkup, clipMarkup, layersMarkup, cupSVG, total } from './cup.js';
 import { $, holdable, ticker, clamp, cToF } from './util.js';
+import { Sound } from './sound.js';
 
 // ---------- the menu ----------
 const DRINKS = [
@@ -72,11 +73,11 @@ function fresh(drinkId = null) {
     pumps: d?.id === 'mocha' ? { chocolate: 4 } : {},
     grind: 3,           // starts on Medium so you have to think about it
     dose: 0,
-    tamp: 0, tampPeak: 0,
+    tamp: 0, tampPeak: 0, distributed: false, locked: false, rate: 0,
     shotTime: 0, shotDone: false,
     milk: d?.lockMilk || null,
     pitcher: { liquid: 0, foam: 0, temp: 4, big: 0 },
-    tip: 'surface', steamed: false,
+    tip: 'surface', steamed: false, purged: false, swirled: false,
     art: d?.art ? 'heart' : 'none', artP: 0,
     amounts: { syrup: 0, chocolate: 0, espresso: 0, water: 0, milk: 0, foam: 0, cream: 0 },
     spilled: 0,
@@ -122,23 +123,13 @@ function colors() {
 }
 
 // ---------- sound ----------
-let audio = null, soundOn = true;
-function noise(kind) {
-  if (!soundOn) return null;
-  try {
-    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-    const len = audio.sampleRate * 2, buf = audio.createBuffer(1, len, audio.sampleRate), data = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
-    const src = audio.createBufferSource(); src.buffer = buf; src.loop = true;
-    const f = audio.createBiquadFilter(); const g = audio.createGain();
-    const cfg = { grind: ['bandpass', 900, .05], steam: ['highpass', 3200, .03], deep: ['lowpass', 600, .05], pour: ['lowpass', 1200, .025], pull: ['lowpass', 500, .03] }[kind];
-    f.type = cfg[0]; f.frequency.value = cfg[1];
-    g.gain.value = 0; g.gain.linearRampToValueAtTime(cfg[2], audio.currentTime + 0.08);
-    src.connect(f).connect(g).connect(audio.destination); src.start();
-    let mod = null;
-    if (kind === 'grind') { mod = audio.createOscillator(); const mg = audio.createGain(); mod.frequency.value = 38; mg.gain.value = .02; mod.connect(mg).connect(g.gain); mod.start(); }
-    return { stop() { g.gain.linearRampToValueAtTime(0, audio.currentTime + 0.08); setTimeout(() => { src.stop(); mod?.stop(); }, 120); } };
-  } catch { return null; }
+function holdSound(kind) {
+  if (kind === 'grind') return Sound.loop('grind', 1 - S.grind / (GRINDS.length - 1));
+  if (kind === 'steam') return Sound.loop('steam', 1);
+  if (kind === 'deep') return Sound.loop('steam', 0);
+  if (kind === 'pour') return Sound.loop('pour', 0.5);
+  if (kind === 'pull') return Sound.loop('pump');
+  return null;
 }
 
 // ---------- shared drawing ----------
@@ -149,7 +140,10 @@ function cupScene({ top = null, stream = null, guide = null, art = false } = {})
   const surface = BOTTOM - Math.min(tot, capacity()) * geo.mlToPx;
   let head = '';
   let sx = CX;
-  if (top === 'machine') {
+  if (top === 'machine-open') {
+    head = `<rect x="60" y="-6" width="160" height="34" rx="8" class="b-metal"/>
+      <g transform="translate(18 26) rotate(-10 150 40)"><rect x="92" y="28" width="96" height="16" rx="4" class="b-dark" opacity=".55"/><path d="M188,36 h70 a8,8 0 0 1 0,14 h-70z" class="b-dark" opacity=".55"/></g>`;
+  } else if (top === 'machine') {
     head = `<rect x="60" y="-6" width="160" height="34" rx="8" class="b-metal"/><rect x="92" y="28" width="96" height="16" rx="4" class="b-dark"/>
       <path d="M188,36 h70 a8,8 0 0 1 0,14 h-70z" class="b-dark"/>
       <path d="M126,44 v10 h-6 M154,44 v10 h6" class="b-spout"/>`;
@@ -164,10 +158,28 @@ function cupScene({ top = null, stream = null, guide = null, art = false } = {})
     sx = CX + (top === 'kettle' ? -6 : 10);
   }
   const startY = top === 'machine' ? 54 : Math.max(18, surface - 112);
-  const streamSvg = stream
+  const sprayDots = stream?.spray ? Array.from({ length: 6 }, (_, i) => `<circle class="b-spray" style="animation-delay:${i * 0.07}s" cx="${sx + (i % 2 ? 12 : -22) + i * 2}" cy="${startY + 10 + i * 6}" r="1.8" fill="${stream.color}"/>`).join('') : '';
+  const streamSvg = stream?.drips
+    ? [0, 1, 2].map(i => `<circle class="b-drop" style="animation-delay:${i * 0.25}s;--fall:${Math.max(20, surface - startY)}px" cx="${sx - (i % 2) * 10}" cy="${startY}" r="2.6" fill="${stream.color}"/>`).join('')
+    : stream
     ? `<rect x="${sx - stream.w / 2}" y="${startY}" width="${stream.w}" height="${Math.max(0, surface - startY)}" rx="${stream.w / 2}" fill="${stream.color}" class="b-stream"/>
-       ${top === 'machine' ? `<rect x="${sx - 10 - stream.w / 2}" y="${startY}" width="${stream.w}" height="${Math.max(0, surface - startY)}" rx="${stream.w / 2}" fill="${stream.color}" class="b-stream"/>` : ''}`
+       ${top === 'machine' ? `<rect x="${sx - 10 - stream.w / 2}" y="${startY}" width="${stream.w}" height="${Math.max(0, surface - startY)}" rx="${stream.w / 2}" fill="${stream.color}" class="b-stream"/>` : ''}${sprayDots}`
     : '';
+  // crema sits on the shot until milk or water breaks through it
+  const a = S.amounts, cr = crema();
+  let cremaSvg = '';
+  if (cr && !a.milk && !a.foam) {
+    const y = BOTTOM - (a.syrup + a.chocolate + a.espresso) * geo.mlToPx;
+    const h = a.water ? 1.5 : cr.h;
+    cremaSvg = `<rect x="${geo.x1 - 10}" y="${y - h / 2}" width="${geo.x2 - geo.x1 + 20}" height="${h}" fill="${cr.color}"/>`
+      + (cr.tiger && !a.water ? Array.from({ length: 14 }, (_, i) => `<circle cx="${geo.x1 + 8 + i * ((geo.x2 - geo.x1 - 16) / 13)}" cy="${y + ((i * 7) % 4) - 1}" r="1.3" fill="#6b3a1a" opacity=".7"/>`).join('') : '');
+  }
+  // overheated or unswirled milk shows big bubbles in the foam
+  let bubbleSvg = '';
+  if (a.foam > 3 && S.pitcher.big > 6) {
+    const fy = BOTTOM - total(a) * geo.mlToPx;
+    bubbleSvg = Array.from({ length: 9 }, (_, i) => `<circle cx="${geo.x1 + 14 + i * 13}" cy="${fy + 4 + (i % 3) * 3}" r="${2.5 + (i % 3)}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8"/>`).join('');
+  }
   const g = guide != null ? (() => {
     const y = BOTTOM - guide * geo.mlToPx;
     const done = Math.abs(tot - guide) <= Math.max(6, guide * 0.06);
@@ -177,7 +189,7 @@ function cupScene({ top = null, stream = null, guide = null, art = false } = {})
   return `<svg class="b-scene" viewBox="0 -10 300 340" aria-hidden="true">
     <defs>${clipMarkup(geo, 'bClip')}</defs>
     ${head}${streamSvg}
-    <g clip-path="url(#bClip)">${layersMarkup(geo, S.amounts, { colors: colors() })}</g>
+    <g clip-path="url(#bClip)">${layersMarkup(geo, S.amounts, { colors: colors() })}${cremaSvg}${bubbleSvg}</g>
     ${g}
     ${outlineMarkup(geo)}
   </svg>`;
@@ -226,12 +238,14 @@ function artParts(id, p) {
     const swan = id === 'swan';
     const n = Math.round(9 * grow(0, swan ? 0.55 : 0.8));
     let s = '';
+    // stacked arcs, wide at the bottom and narrowing up: that’s what a rosetta’s leaves look like
     for (let i = 0; i < n; i++) {
-      const y = 48 - i * 9, w = 46 - i * 3.6;
+      const y = 50 - i * 9, w = 48 - i * 4, lift = 16 - i * 0.6;
       const cx = swan ? 18 + i * 1.5 : 0;
-      s += `<path d="M${cx - w},${y} q${w},-22 ${w * 2},0 q-${w},-12 -${w * 2},0z"/>`;
+      s += `<path d="M${cx - w},${y} C${cx - w * 0.55},${y - lift} ${cx + w * 0.55},${y - lift} ${cx + w},${y}" fill="none" stroke="#fdf9f1" stroke-width="${5 - i * 0.25}" stroke-linecap="round"/>`;
     }
-    if (!swan) return s + show(0.85, `<path d="M0,-40 V58" stroke="#fdf9f1" stroke-width="3"/><path d="M0,-40 V58" stroke="${crema}" stroke-width="1" opacity=".5"/>`);
+    if (!swan && p >= 0.75) s += `<path d="M0,-38 c-6,-10 -18,-5 -12,5 l12,11 l12,-11 c6,-10 -6,-15 -12,-5z"/>`;
+    if (!swan) return s + show(0.9, `<path d="M0,-30 V60" stroke="${crema}" stroke-width="1.6" opacity=".6"/>`);
     const neck = grow(0.55, 0.85);
     if (neck > 0) s += `<path d="M-14,56 C-40,30 -40,-10 -26,-34" stroke="#fdf9f1" stroke-width="9" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="${neck} 1"/>`;
     s += show(0.88, `<path d="M-26,-34 c-8,-12 -24,-6 -16,6 l12,12 l12,-12 c8,-12 -8,-18 -8,-6z" transform="translate(4 -6) scale(.9)"/>`);
@@ -251,6 +265,26 @@ function gauge(value, max, lo, hi, { label = '', danger = null, unit = '' } = {}
     <circle r="6" class="g-hub"/>
     <text class="g-val" y="30">${Math.round(value)}${unit}</text><text class="g-lbl" y="44">${label}</text>
   </svg>`;
+}
+
+// Water finds the weak spot in an uneven or loose puck.
+function channeling() { return !S.distributed || S.tamp < 15; }
+
+// What the shot looks like coming out of the spouts tells you how it’s going.
+function shotStream() {
+  if (S.shotTime < 6 || S.rate < 1.3) return { w: 2.5, color: '#1e0e06', drips: true };
+  if (S.rate > 4.5) return { w: 6, color: '#a86d3a' };
+  const color = S.shotTime < 12 ? '#2a1408' : S.shotTime < 24 ? '#5e3217' : '#b07a45';
+  return { w: 3.5, color, spray: channeling() };
+}
+
+// Crema: thick and tiger-striped from a good shot, thin and pale from a fast one, dark from a choked one.
+function crema() {
+  const v = shotVerdict();
+  if (!S.amounts.espresso) return null;
+  if (v.mood === 'sour') return { h: 2, color: '#d9bd92', tiger: false };
+  if (v.mood === 'bitter') return { h: 2.5, color: '#4a2412', tiger: false };
+  return { h: v.score >= 1 ? 7 : 4.5, color: '#b8763f', tiger: v.score >= 1 };
 }
 
 // ---------- scoring helpers ----------
@@ -283,6 +317,7 @@ const SCREENS = {
   drink: {
     enter() {
       return {
+        cue: 'What are we making?',
         guide: 'Every drink below starts the same way: a double shot of espresso. What comes after is up to you.',
         controls: `<div class="b-menu">${DRINKS.map(d => `<button type="button" class="b-drink" data-drink="${d.id}">
           ${cupSVG(d.cup, d.recipe, { className: 'b-drink-art' })}<b>${d.name}</b><small>${d.blurb}</small></button>`).join('')}</div>`,
@@ -296,6 +331,7 @@ const SCREENS = {
     enter() {
       const mocha = S.drink.id === 'mocha';
       return {
+        cue: mocha ? 'Chocolate first. It goes in the cup.' : 'Syrup first. It goes in the cup.',
         guide: `${mocha ? 'A mocha starts with chocolate sauce in the bottom of the cup. Want to add another flavor too?' : 'Want flavor? Syrup goes into the cup <em>before</em> the espresso, so the hot shot melts it in.'} One pump is about 7.5 ml. Most cafés use 2–4 pumps.`,
         controls: `<ul class="b-syrups">${SYRUPS.filter(s => mocha || s.id !== 'chocolate').map(s => `<li style="--s:${s.color}">
           <i class="b-swatch"></i><span>${s.name}</span>
@@ -317,6 +353,7 @@ const SCREENS = {
   grind: {
     enter() {
       return {
+        cue: 'Fine grind. <b>18 grams.</b>',
         guide: 'Espresso has only about 25 seconds to pull flavor out, so the grind needs to be <b>fine</b>. Pick a setting, then hold <b>Grind</b> until the scale reads about <b>18 g</b>.',
         controls: `<div class="b-grinds" role="radiogroup" aria-label="Grind setting">${GRINDS.map((g, i) => `<button type="button" role="radio" data-g="${i}" aria-checked="${i === S.grind}">${g.name}</button>`).join('')}</div>
           <div class="b-row"><button type="button" class="btn btn-primary b-hold" id="bHold">⚙️ Hold to grind</button><button type="button" class="btn btn-sm" id="bReset">Dump it</button></div>`,
@@ -342,8 +379,9 @@ const SCREENS = {
   tamp: {
     enter() {
       return {
+        cue: 'Level it. Then press. <b>About 30 lb.</b>',
         guide: 'Tamping packs the grounds into an even puck so water can’t sneak through the gaps. Hold <b>Press</b> and let go when the gauge is in the green, around <b>30 lb</b> (about the weight of a big bag of flour).',
-        controls: `<div class="b-row"><button type="button" class="btn btn-primary b-hold" id="bHold">✊ Hold to press</button><button type="button" class="btn btn-sm" id="bReset">Redo</button></div>`,
+        controls: `<div class="b-row"><button type="button" class="btn btn-sm b-move" id="bDist" aria-pressed="${S.distributed}">① Distribute</button><button type="button" class="btn btn-primary b-hold" id="bHold">② Hold to press</button><button type="button" class="btn btn-sm" id="bReset">Redo</button></div>`,
         stage: tampStage(),
         ready: () => S.tamp > 5,
         nextLabel: () => 'Next: pull the shot →',
@@ -354,18 +392,20 @@ const SCREENS = {
     live() {
       stage(tampStage());
       const t = S.tamp;
-      feedback(t === 0 ? '' : t < 15 ? `${Math.round(t)} lb. Too soft: water will find channels and rush through.` : t < 25 ? `${Math.round(t)} lb. A little light.` : t <= 35 ? `${Math.round(t)} lb. Nice and firm. 👌` : t <= 42 ? `${Math.round(t)} lb. Firm. That’s fine, it won’t change much.` : `${Math.round(t)} lb! Easy, your wrist will thank you.`);
+      if (t === 0) { feedback(S.distributed ? 'Level. No clumps, no gaps.' : 'Lumpy bed. Water loves a shortcut.'); return; }
+      feedback(t < 15 ? `${Math.round(t)} lb. Too soft: water will find channels and rush through.` : t < 25 ? `${Math.round(t)} lb. A little light.` : t <= 35 ? `${Math.round(t)} lb. Nice and firm. 👌` : t <= 42 ? `${Math.round(t)} lb. Firm. That’s fine, it won’t change much.` : `${Math.round(t)} lb! Easy, your wrist will thank you.`);
     },
   },
 
   pull: {
     enter() {
       return {
+        cue: 'Lock in. Pull. <b>25–30 seconds.</b>',
         guide: 'Lock in the portafilter and hold <b>Pull</b>. Watch the timer and the line: a good double is about <b>60 ml in 25–30 seconds</b>. Let go to stop.',
-        controls: `<div class="b-row"><button type="button" class="btn btn-primary b-hold" id="bHold">☕ Hold to pull</button><button type="button" class="btn btn-sm" id="bRedo">Dump & start over</button></div>
+        controls: `<div class="b-row"><button type="button" class="btn btn-sm b-move" id="bLock" aria-pressed="${S.locked}">① Lock in</button><button type="button" class="btn btn-primary b-hold" id="bHold" ${S.locked ? '' : 'disabled'}>② Hold to pull</button><button type="button" class="btn btn-sm" id="bRedo">Dump & start over</button></div>
           <div class="b-timer"><span id="bTime">0.0</span> s <span class="b-extract"><i id="bExtract"></i></span></div>
           <div class="b-extract-lbl"><span>sour</span><span>sweet spot</span><span>bitter</span></div>`,
-        stage: cupScene({ top: 'machine', guide: S.amounts.syrup + S.amounts.chocolate + 60 }),
+        stage: cupScene({ top: S.locked ? 'machine' : 'machine-open', guide: S.amounts.syrup + S.amounts.chocolate + 60 }),
         ready: () => S.amounts.espresso > 10,
         nextLabel: () => (S.drink.steps[0] === 'water' ? 'Next: add water →' : S.drink.steps[0] === 'milk' ? 'Next: milk →' : 'See my espresso →'),
       };
@@ -377,17 +417,23 @@ const SCREENS = {
         const g = GRINDS[S.grind];
         const doseF = Math.pow(18 / Math.max(8, S.dose), 1.6);
         const tampF = S.tamp < 15 ? 1.4 : S.tamp < 25 ? 1.12 : S.tamp > 42 ? 0.92 : 1;
+        const channelF = channeling() ? 1.18 : 1;
         // the first few seconds are pre-infusion: just drips
-        const rate = S.shotTime < 6 ? 0.4 : 2.62 * g.flow * doseF * tampF;
+        const rate = S.shotTime < 6 ? 0.4 : 2.62 * g.flow * doseF * tampF * channelF;
+        S.rate = rate;
         pourInto('espresso', rate * dt);
       },
     },
     live(streaming) {
-      stage(cupScene({ top: 'machine', guide: S.amounts.syrup + S.amounts.chocolate + 60, stream: streaming ? { w: 3, color: '#3a1d0e' } : null }));
+      stage(cupScene({ top: S.locked ? 'machine' : 'machine-open', guide: S.amounts.syrup + S.amounts.chocolate + 60, stream: streaming ? shotStream() : null }));
       $('bTime').textContent = S.shotTime.toFixed(1);
       $('bExtract').style.left = `${clamp((S.shotTime - 10) / 30, 0, 1) * 100}%`;
       if (!streaming) feedback(S.amounts.espresso ? shotVerdict().text : '');
-      else feedback(S.shotTime < 6 ? 'Pre-infusion… the puck is soaking.' : 'Here it comes. Watch the color go from dark to golden.');
+      else feedback(S.shotTime < 6 ? 'Pre-infusion… the puck is soaking.'
+        : S.rate > 4.5 ? 'Whoa, it’s gushing. Thin and pale.'
+        : S.rate < 1.3 ? 'Barely dripping… it’s choking.'
+        : channeling() ? 'It’s spurting. Water found a channel.'
+        : 'Thick, dark, like warm honey. Watch it turn golden.');
     },
   },
 
@@ -395,6 +441,7 @@ const SCREENS = {
     enter() {
       const target = total(S.drink.recipe) + S.amounts.syrup;
       return {
+        cue: 'Top it with hot water.',
         guide: 'Hold <b>Pour</b> to top the shot with hot water (about 90 °C). Stop at the line. Fun fact: pour the espresso <em>over</em> water instead and it’s called a long black, which keeps the crema on top.',
         controls: `<div class="b-row"><button type="button" class="btn btn-primary b-hold" id="bHold">💧 Hold to pour water</button></div>`,
         stage: cupScene({ top: 'kettle', guide: target }),
@@ -414,6 +461,7 @@ const SCREENS = {
     enter() {
       const lock = S.drink.lockMilk;
       return {
+        cue: lock ? 'Half & half. That’s the rule.' : 'Pick your milk.',
         guide: lock ? 'A breve is made with half-and-half by definition. That’s the rule!' : 'Every milk steams differently. Pick one.',
         controls: `<div class="b-milks">${MILKS.filter(m => !lock || m.id === lock).map(m => `<button type="button" class="b-milk" data-milk="${m.id}" aria-pressed="${S.milk === m.id}" style="--m:${m.color}">
           <i class="b-carton"></i><b>${m.name}</b><small>${m.note}</small><span class="b-temp">Steam to ${m.lo}–${m.hi} °C · ${cToF(m.lo)}–${cToF(m.hi)} °F</span></button>`).join('')}</div>`,
@@ -431,6 +479,7 @@ const SCREENS = {
       if (!S.steamed) S.pitcher = { liquid: (d.recipe.milk || 0) + (d.recipe.foam || 0) * 0.5, foam: 0, temp: 4, big: 0 };
       const foamy = d.foamOnly ? 'lots of foam' : d.id === 'cappuccino' ? 'a thick, airy foam' : d.id === 'flatwhite' ? 'just a whisper of silky foam' : d.id === 'mocha' ? 'a little foam (the cream goes on top anyway)' : 'a thin layer of foam';
       return {
+        cue: `Purge. Stretch. Spin. <b>Stop at ${m.lo}–${m.hi}°C.</b>`,
         guide: `For a ${d.name.toLowerCase()} you want ${foamy}.<ol class="b-how">
           <li><b>Stretch:</b> with the tip <em>just under the surface</em>, you’ll hear a “tss-tss” like tearing paper. That’s air going in. Do this while the milk is still cool.</li>
           <li><b>Spin:</b> dip the tip <em>deeper</em> so the milk whirlpools. That folds big bubbles into silky microfoam and heats it up.</li>
@@ -438,7 +487,7 @@ const SCREENS = {
         controls: `<div class="seg" role="radiogroup" aria-label="Steam wand position">
             <button type="button" role="radio" data-tip="surface" aria-checked="${S.tip === 'surface'}">Tip at surface<small>adds air</small></button>
             <button type="button" role="radio" data-tip="deep" aria-checked="${S.tip === 'deep'}">Tip deeper<small>spins & heats</small></button></div>
-          <div class="b-row"><button type="button" class="btn btn-primary b-hold" id="bHold">♨️ Hold to steam</button><button type="button" class="btn btn-sm" id="bReset">Fresh milk</button></div>`,
+          <div class="b-row"><button type="button" class="btn btn-sm b-move" id="bPurge" aria-pressed="${S.purged}">① Purge wand</button><button type="button" class="btn btn-primary b-hold" id="bHold" ${S.purged ? '' : 'disabled'}>② Hold to steam</button><button type="button" class="btn btn-sm b-move" id="bSwirl" aria-pressed="${S.swirled}" ${S.steamed ? '' : 'disabled'}>③ Tap & swirl</button><button type="button" class="btn btn-sm" id="bReset">Fresh milk</button></div>`,
         stage: steamStage(),
         ready: () => S.pitcher.temp >= 35,
         nextLabel: () => 'Next: pour →',
@@ -460,7 +509,7 @@ const SCREENS = {
         }
       },
     },
-    reset() { S.steamed = false; S.pitcher = { liquid: (S.drink.recipe.milk || 0) + (S.drink.recipe.foam || 0) * 0.5, foam: 0, temp: 4, big: 0 }; },
+    reset() { S.steamed = false; S.swirled = false; S.pitcher = { liquid: (S.drink.recipe.milk || 0) + (S.drink.recipe.foam || 0) * 0.5, foam: 0, temp: 4, big: 0 }; },
     live(on) {
       stage(steamStage(on));
       const p = S.pitcher, m = milkObj(), t = p.temp;
@@ -471,7 +520,9 @@ const SCREENS = {
       if (!on && t > m.hi + 6) msg += ` Too hot! ${m.name} scorches up here and loses its sweetness.`;
       else if (!on && t >= m.lo && t <= m.hi + 2) msg += ' Right in the zone. 🔥';
       else if (!on && t >= 35 && t < m.lo) msg += ' A bit cool, but drinkable. Kids’ temp!';
-      if (!on && p.big > 6) msg += ' Some big bubbles in there. Tap the pitcher on the counter and swirl.';
+      if (!on && p.big > 6) msg += ' Big bubbles in there. Tap & swirl.';
+      if (!on && S.swirled) msg += ' Glossy, like wet paint.';
+      const sw = $('bSwirl'); if (sw) sw.disabled = !S.steamed;
       feedback(msg);
     },
   },
@@ -481,6 +532,7 @@ const SCREENS = {
       const d = S.drink;
       S.pourTarget = Math.min(capacity(), Math.round(S.amounts.syrup + S.amounts.chocolate + S.amounts.espresso + (d.recipe.milk || 0) + (d.recipe.foam || 0)));
       return {
+        cue: d.foamOnly ? 'Just a spoonful of foam.' : 'High to mix. <b>Low to draw.</b>',
         guide: d.foamOnly
           ? 'Hold the liquid milk back with a spoon and just spoon a dollop of foam onto the shot. Hold <b>Spoon foam</b>.'
           : `Swirl the pitcher so the foam and milk stay mixed, then hold <b>Pour</b>. Start high and steady so the milk dives under the crema, then come in low at the end so the foam floats up and draws your design.${d.id === 'mocha' ? ' Leave room at the top for the whipped cream.' : ''}`,
@@ -533,14 +585,20 @@ const SCREENS = {
       if (S.drink.id === 'mocha' && !S.amounts.cream) pourInto('cream', S.drink.recipe.cream);
       S.result = score();
       const r = S.result;
+      const m = milkObj();
+      const out = Math.round(S.amounts.espresso * 0.6);
+      const stat = (k, v, u) => `<div><dt>${k}</dt><dd>${v}<small>${u}</small></dd></div>`;
       return {
+        cue: '',
         guide: '',
         controls: `<div class="b-result">
-          <p class="mini-title">You made</p><h3>${r.title}</h3>
-          <p class="b-stars" aria-label="${r.stars} out of 5 stars">${'★'.repeat(r.stars)}<span>${'★'.repeat(5 - r.stars)}</span></p>
-          <p>${r.verdict}</p>
-          <ul class="b-score">${r.rows.map(x => `<li><span>${x.label}</span><b>${x.value}</b><i class="${x.score >= .95 ? 'good' : x.score >= .7 ? 'ok' : 'meh'}"></i></li>`).join('')}</ul>
-          ${r.tip ? `<p class="layer-fact">💡 ${r.tip}</p>` : ''}
+          <p class="b-reveal-k">Your</p><h3 class="b-reveal-name">${r.title}</h3>
+          <dl class="b-stats">${stat('In', S.dose.toFixed(0), 'g')}${stat('Out', out, 'g')}${stat('Time', S.shotTime.toFixed(0), 'sec')}${m ? stat('Milk', Math.round(S.pitcher.temp), '°C') : S.amounts.water ? stat('Water', Math.round(S.amounts.water), 'ml') : ''}</dl>
+          <p class="b-taste">${r.taste}</p>
+          <p class="b-stars" aria-label="Barista score ${r.stars} out of 5">${'★'.repeat(r.stars)}<span>${'★'.repeat(5 - r.stars)}</span> <small>barista score · ${r.verdict}</small></p>
+          <details class="why"><summary>How you did <span>+</span></summary><div class="why-body">
+            <ul class="b-score">${r.rows.map(x => `<li><span>${x.label}</span><b>${x.value}</b><i class="${x.score >= .95 ? 'good' : x.score >= .7 ? 'ok' : 'meh'}"></i></li>`).join('')}</ul>
+            ${r.tip ? `<p class="why-fact">${r.tip}</p>` : ''}</div></details>
           <div class="b-row"><button type="button" class="btn btn-primary" id="bAgain">Make another</button><button type="button" class="btn btn-sm" id="bSame">Same drink again</button></div></div>`,
         stage: `<div class="b-final">${cupScene()}${S.drink.art || S.amounts.cream ? topView() : ''}</div>`,
         noNext: true,
@@ -571,7 +629,9 @@ function tampStage() {
     <rect x="128" y="${y - 90}" width="44" height="80" rx="18" fill="#6b4a2c"/>
     <rect x="96" y="${y - 12}" width="108" height="12" rx="3" class="b-metal"/>
     <path d="M90,140 h120 v60 a10,10 0 0 1 -10,10 h-100 a10,10 0 0 1 -10,-10z" class="b-metal"/>
-    <rect x="98" y="${200 - bed}" width="104" height="${bed}" fill="#4a2a14"/>
+    ${t === 0 && !S.distributed
+      ? `<path d="M98,200 V${200 - bed + 6} Q112,${200 - bed - 10} 126,${200 - bed + 2} T154,${200 - bed - 4} T182,${200 - bed + 6} T202,${200 - bed - 2} V200Z" fill="#4a2a14"/>${[110, 140, 170].map(x => `<circle cx="${x}" cy="${200 - bed - 2}" r="5" fill="#3a2010"/>`).join('')}`
+      : `<rect x="98" y="${200 - bed}" width="104" height="${bed}" fill="#4a2a14"/>`}
     <path d="M210,170 h80" stroke="#2a1a12" stroke-width="14" stroke-linecap="round"/>
   </svg>${gauge(t, 50, 25, 35, { label: 'pounds', danger: 44 })}</div>`;
 }
@@ -589,6 +649,8 @@ function steamStage(on = false) {
       <rect x="0" y="${bottom - liqH}" width="300" height="${liqH}" fill="${m.color}"/>
       <rect x="0" y="${surf}" width="300" height="${foamH + 1}" fill="#fdf9f1"/><rect x="0" y="${surf}" width="300" height="${foamH + 1}" fill="url(#bubbles)"/>
       ${on ? `<g class="b-swirl">${Array.from({ length: 8 }, (_, i) => `<circle cx="${px - 40 + i * 11}" cy="${surf + 6 + (i % 3) * 10}" r="${p.big > 6 ? 4 : 2}" fill="#fff" opacity=".7"/>`).join('')}</g>` : ''}
+      ${!on && p.big > 6 ? Array.from({ length: 10 }, (_, i) => `<circle cx="${px - 50 + i * 11}" cy="${surf + 5 + (i % 2) * 5}" r="${3 + (i % 3) * 1.5}" fill="none" stroke="#fff" stroke-width="1.5"/>`).join('') : ''}
+      ${!on && S.swirled ? `<rect x="0" y="${surf}" width="300" height="5" fill="#fff" opacity=".55"/>` : ''}
     </g>
     <path d="M${px - w / 2},120 h${w} l-8,${bottom - 120} h-${w - 16}z" fill="none" stroke="#9aa0a6" stroke-width="4"/>
     <path d="M${px - w / 2},120 l-16,-8" stroke="#9aa0a6" stroke-width="4" stroke-linecap="round"/>
@@ -624,6 +686,7 @@ function score() {
   const doseS = band3(Math.abs(S.dose - 18) <= 0.6, Math.abs(S.dose - 18) <= 2);
   rows.push({ label: 'Dose', value: `${S.dose.toFixed(1)} g`, score: doseS });
   rows.push({ label: 'Grind', value: GRINDS[S.grind].name, score: S.grind === 5 ? 1 : Math.abs(S.grind - 5) === 1 ? 0.7 : 0.4 });
+  rows.push({ label: 'Prep', value: S.distributed ? 'Distributed ✓' : 'Skipped distributing', score: S.distributed ? 1 : 0.6 });
   const tampS = band3(S.tamp >= 25 && S.tamp <= 36, S.tamp >= 15 && S.tamp <= 44);
   rows.push({ label: 'Tamp', value: `${Math.round(S.tamp)} lb`, score: tampS });
   const shot = shotVerdict();
@@ -636,6 +699,7 @@ function score() {
     const t = S.pitcher.temp;
     const tS = t >= m.lo && t <= m.hi + 2 ? 1 : t > m.hi + 8 ? 0.35 : t >= m.lo - 8 && t <= m.hi + 8 ? 0.7 : 0.45;
     rows.push({ label: 'Milk temp', value: `${Math.round(t)} °C / ${cToF(t)} °F`, score: tS });
+    rows.push({ label: 'Texture', value: S.swirled && S.pitcher.big < 6 ? 'Glossy ✓' : S.pitcher.big > 6 ? 'Big bubbles' : 'Not swirled', score: S.swirled && S.pitcher.big < 6 ? 1 : 0.7 });
     if (d.recipe.foam) rows.push({ label: 'Foam', value: `${Math.round(S.amounts.foam)} ml`, score: foamQuality() >= .85 ? 1 : foamQuality() >= .6 ? 0.7 : 0.45 });
     if (!d.foamOnly) {
       const want = S.pourTarget, got = total(S.amounts) - S.amounts.cream;
@@ -658,7 +722,15 @@ function score() {
     Pour: 'Watch the dashed line and let go a moment early. The stream still in the air will land.',
     'Latte art': 'Art comes at the very end: get the pitcher close to the surface so the foam floats.',
   };
-  return { title, stars, verdict, rows, tip: worst.score < 0.95 ? tips[worst.label] : null };
+  tips.Prep = 'Stir or tap the grounds level before tamping. Clumps make channels, and channels make sour, spurting shots.';
+  tips.Texture = 'After steaming, tap the pitcher on the counter and swirl until the milk shines.';
+  const scorched = m && S.pitcher.temp > m.hi + 8;
+  const taste = (shot.mood === 'sweet' ? 'Sweet and round, with thick crema.'
+    : shot.mood === 'sour' ? 'Bright, thin and a little sour.'
+    : shot.mood === 'bitter' ? 'Heavy, with a bitter edge.'
+    : shot.mood === 'short' ? 'Short, syrupy and intense.'
+    : 'Long and a little watery.') + (scorched ? ' The milk tastes cooked.' : m ? ` ${m.name} milk, ${S.swirled ? 'silky' : 'a bit foamy'}.` : '');
+  return { title, stars, verdict, rows, taste, tip: worst.score < 0.95 ? tips[worst.label] : null };
 }
 
 // ---------- engine ----------
@@ -682,9 +754,13 @@ function enter() {
   const sc = SCREENS[id];
   const view = sc.enter();
   renderSteps();
-  $('bTitle').textContent = STEP_TITLES[id];
+  $('bTitle').textContent = id === 'done' ? '' : STEP_TITLES[id];
+  $('bTitle').hidden = id === 'done';
+  $('bCue').innerHTML = view.cue || '';
+  $('bCue').hidden = !view.cue;
   $('bGuide').innerHTML = view.guide;
-  $('bGuide').hidden = !view.guide;
+  $('bWhy').hidden = !view.guide;
+  $('bWhy').open = false;
   $('bControls').innerHTML = view.controls;
   stage(view.stage);
   feedback('');
@@ -710,7 +786,7 @@ function updateNext() {
 function startHold(sc) {
   if (holdState) return;
   sc.hold.start?.();
-  holdState = { snd: noise(sc.hold.sound) };
+  holdState = { snd: holdSound(sc.hold.sound) };
   loop.start();
 }
 
@@ -734,11 +810,6 @@ export function initBarista() {
   fresh();
   $('bNext').addEventListener('click', () => go(1));
   $('bChange').addEventListener('click', () => { fresh(); enter(); });
-  $('bSound').addEventListener('click', () => {
-    soundOn = !soundOn;
-    $('bSound').setAttribute('aria-pressed', soundOn);
-    $('bSound').textContent = soundOn ? '🔊' : '🔇';
-  });
 
   $('bControls').addEventListener('click', e => {
     const t = e.target;
@@ -776,10 +847,26 @@ export function initBarista() {
       $('bControls').querySelectorAll('[data-art]').forEach(b => b.setAttribute('aria-checked', b.dataset.art === S.art));
       SCREENS.pour.live(false); return;
     }
+    if (t.id === 'bDist') {
+      S.distributed = true; Sound.sfx('tap'); setTimeout(() => Sound.sfx('tap'), 140);
+      t.setAttribute('aria-pressed', 'true'); SCREENS.tamp.live(); return;
+    }
+    if (t.id === 'bLock') {
+      S.locked = true; Sound.sfx('clunk'); t.setAttribute('aria-pressed', 'true');
+      $('bHold').disabled = false; SCREENS.pull.live(false); return;
+    }
+    if (t.id === 'bPurge') {
+      S.purged = true; Sound.sfx('puff'); t.setAttribute('aria-pressed', 'true');
+      $('bHold').disabled = false; feedback('Psshh. Water out of the wand, so only dry steam goes in your milk.'); return;
+    }
+    if (t.id === 'bSwirl') {
+      S.swirled = true; S.pitcher.big = 0; Sound.sfx('tap'); setTimeout(() => Sound.sfx('tap'), 160);
+      t.setAttribute('aria-pressed', 'true'); SCREENS.steam.live(false); return;
+    }
     if (t.id === 'bReset') { SCREENS[step()].reset?.(); SCREENS[step()].live?.(false); updateNext(); return; }
     if (t.id === 'bRedo') {
       // dump the shot and go back to grinding
-      S.amounts.espresso = 0; S.shotTime = 0; S.dose = 0; S.tamp = 0; S.spilled = 0;
+      S.amounts.espresso = 0; S.shotTime = 0; S.dose = 0; S.tamp = 0; S.spilled = 0; S.distributed = false; S.locked = false;
       S.at = S.steps.indexOf('grind'); enter(); return;
     }
     if (t.id === 'bAgain') { fresh(); enter(); return; }

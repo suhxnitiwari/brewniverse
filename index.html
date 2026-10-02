@@ -8,7 +8,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -20,6 +20,9 @@
         <circle cx="13" cy="8" r="1.5" fill="#000" opacity=".05" />
         <circle cx="9" cy="2" r="1" fill="#000" opacity=".04" />
       </pattern>
+      <radialGradient id="jShine" cx="32%" cy="26%" r="62%"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".5" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="jFire"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".85"/><stop offset=".55" stop-color="#e2531f" stop-opacity=".35"/><stop offset="1" stop-color="#e2531f" stop-opacity="0"/></radialGradient>
+      <radialGradient id="jCrema"><stop offset=".55" stop-color="#c79a6a"/><stop offset="1" stop-color="#7a4a26"/></radialGradient>
       <radialGradient id="beanShine" cx="35%" cy="30%" r="60%">
         <stop offset="0" stop-color="#fff" stop-opacity=".55" />
         <stop offset="1" stop-color="#fff" stop-opacity="0" />
@@ -27,74 +30,73 @@
     </defs>
   </svg>
 
-  <nav class="nav">
+  <nav class="nav" id="nav">
     <a class="brand" href="#top">Brewniverse</a>
-    <div class="nav-links">
-      <a href="#journey">Journey</a>
-      <a href="#anatomy">Anatomy</a>
-      <a href="#beans">Beans</a>
-      <a href="#coffeemap">Map</a>
-      <a href="#roast">Roast</a>
-      <a href="#grind">Grind</a>
-      <a href="#flavor">Flavor</a>
-      <a href="#barista">Barista</a>
-      <a href="#pour">Pour</a>
-      <a href="#drinks">Drinks</a>
+    <div class="nav-right">
+      <button class="nav-btn sound-toggle" id="soundToggle" type="button" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-label">Sound off</span></button>
+      <button class="nav-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu">Chapters</button>
     </div>
   </nav>
+  <div class="menu" id="menu" hidden>
+    <ol class="menu-list">
+      <li><a href="#story"><b>01–09</b>The journey</a></li>
+      <li><a href="#anatomy"><b>Peel</b>Inside the cherry</a></li>
+      <li><a href="#beans"><b>Compare</b>The beans</a></li>
+      <li><a href="#coffeemap"><b>Travel</b>The passport</a></li>
+      <li><a href="#roast"><b>Roast</b>The fire</a></li>
+      <li><a href="#grind"><b>Grind</b>The grind</a></li>
+      <li><a href="#soundboard"><b>Listen</b>The sound of coffee</a></li>
+      <li><a href="#flavor"><b>Taste</b>The nose</a></li>
+      <li><a href="#barista"><b>Make</b>Behind the bar</a></li>
+      <li><a href="#pour"><b>Pour</b>The pour</a></li>
+      <li><a href="#drinks"><b>Choose</b>The menu</a></li>
+      <li><a href="#morning"><b>10</b>Drink</a></li>
+    </ol>
+  </div>
 
   <header class="hero" id="top">
-    <div class="hero-text">
-      <p class="eyebrow">The whole world of coffee</p>
-      <h1>What’s actually<br />in your cup?</h1>
-      <p class="lede">Follow a bean from the tree to your mug. See where coffee grows and where the big chains buy it. Then grind, tamp, steam and pour your own latte.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="#journey">Start the journey</a>
-        <a class="btn" href="#barista">Make a latte</a>
-      </div>
+    <div class="hero-photo" data-photo="hero" role="img" aria-label="Espresso pouring from a portafilter"></div>
+    <div class="hero-shade"></div>
+    <svg class="hero-steam" viewBox="0 0 200 300" aria-hidden="true">
+      <path d="M70,300 q-24,-50 0,-100 q24,-50 0,-100 q-24,-50 0,-100"/><path d="M110,300 q-24,-50 0,-100 q24,-50 0,-100 q-24,-50 0,-100"/><path d="M150,300 q-24,-50 0,-100 q24,-50 0,-100 q-24,-50 0,-100"/>
+    </svg>
+    <div class="hero-type">
+      <p class="hero-kicker">Brewniverse</p>
+      <h1>From cherry<br /><em>to crema.</em></h1>
     </div>
-    <button class="hero-cup" id="heroCup" type="button" aria-label="Show the next drink">
-      <span class="hero-cup-art" id="heroCupArt"></span>
-      <span class="hero-cup-name" id="heroCupName"></span>
-      <span class="hero-cup-hint">tap for another</span>
-    </button>
+    <a class="hero-scroll" href="#story">Scroll to follow the bean <span aria-hidden="true">↓</span></a>
   </header>
 
   <main>
-    <!-- 01 SEED TO CUP -->
-    <section class="section" id="journey">
-      <div class="section-head">
-        <p class="eyebrow">01 · Seed to Cup</p>
-        <h2>From a tree to your mug</h2>
-        <p>Coffee goes through a lot of hands before it reaches you. Step through all of it, or hit autoplay and watch. Arrow keys work too.</p>
-      </div>
-      <ol class="j-steps" id="jSteps" aria-label="Steps"></ol>
-      <div class="journey" tabindex="-1">
-        <div class="j-art-wrap">
-          <svg id="jArt" class="j-art" viewBox="0 0 320 240" aria-hidden="true"></svg>
-          <div class="j-mass" id="jMass" hidden>
-            <span class="mini-title">How much is left</span>
-            <div class="meter"><div class="meter-fill" id="jMassFill"></div></div>
-            <p id="jMassText"></p>
-          </div>
+    <section class="breath" aria-label="Interlude">
+      <p class="breath-line">Before coffee was a drink,<br /><em>it was a cherry.</em></p>
+    </section>
+
+    <!-- THE JOURNEY: one bean, scroll-driven -->
+    <section class="story" id="story" aria-label="The journey from cherry to cup">
+      <div class="story-pin">
+        <div class="story-bgs" id="storyBgs"></div>
+        <div class="story-shade"></div>
+        <div class="story-wash" aria-hidden="true"></div>
+        <div class="story-chapter"><span class="story-num" id="storyNum">01</span><span class="story-name" id="storyName">Grow</span></div>
+        <svg class="story-obj" id="storyObj" viewBox="-230 -230 460 460" aria-hidden="true"><g id="jStage"></g></svg>
+        <div class="story-copy" id="storyCopy">
+          <h2 class="story-line" id="storyLine"></h2>
+          <p class="story-note" id="storyNote"></p>
+          <div id="storyWhy"></div>
         </div>
-        <article class="j-card" aria-live="polite">
-          <p class="j-meta"><span id="jCount"></span> · <span id="jPhase"></span></p>
-          <h3 id="jTitle"></h3>
-          <p class="j-time" id="jTime"></p>
-          <div id="jBody"></div>
-          <div class="j-nav">
-            <button class="btn btn-sm" id="jPrev" type="button">← Back</button>
-            <button class="btn btn-sm" id="jPlay" type="button" aria-pressed="false">▶ Autoplay</button>
-            <button class="btn btn-primary" id="jNext" type="button">Next →</button>
-          </div>
-        </article>
+        <ol class="story-rail" id="storyRail" aria-label="Chapters"></ol>
+        <div class="story-progress"><i id="storyProgress"></i></div>
       </div>
+    </section>
+
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="cherry"></div>
+      <div class="cc-type"><p class="cc-kicker">Peel it</p><p class="cc-title">Inside<br>the cherry</p><p class="cc-line">Two seeds, six layers, one surprise.</p></div>
     </section>
     <!-- 02 ANATOMY -->
     <section class="section" id="anatomy">
       <div class="section-head">
-        <p class="eyebrow">02 · Bean Anatomy</p>
         <h2>A coffee bean is a seed</h2>
         <p>Before it’s roasted, it’s wrapped in layers of fruit and husk. Tap any layer to learn what it is, or peel the cherry the way a farm does.</p>
       </div>
@@ -131,10 +133,13 @@
         <div class="fact"><h3>It’s a fruit</h3><p>Coffee grows on <em>Coffea</em> shrubs, which are in the same plant family as gardenias. The “beans” are the seeds of its cherries.</p></div>
       </div>
     </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="roasted"></div>
+      <div class="cc-type"><p class="cc-kicker">Compare them</p><p class="cc-title">The<br>beans</p><p class="cc-line">Arabica, Robusta, and everything in between.</p></div>
+    </section>
     <!-- 03 BEANS & ROASTS -->
     <section class="section" id="beans">
       <div class="section-head">
-        <p class="eyebrow">03 · Beans &amp; Roasts</p>
         <h2>Not all beans are the same</h2>
         <p>There are over 130 species of coffee plant, but nearly everything you drink is one of two: Arabica or Robusta. Tap a bean to compare them and see where the names come from.</p>
       </div>
@@ -175,10 +180,13 @@
         <article class="sp-card roast-card" id="roastCard" aria-live="polite"></article>
       </div>
     </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="sacks"></div>
+      <div class="cc-type"><p class="cc-kicker">Follow it</p><p class="cc-title">Your coffee<br>has a passport.</p><p class="cc-line">Every cup begins somewhere near the equator.</p></div>
+    </section>
     <!-- 04 COFFEE MAP -->
     <section class="section" id="coffeemap">
       <div class="section-head">
-        <p class="eyebrow">04 · Coffee Map</p>
         <h2>Where coffee grows</h2>
         <p>Coffee only grows in a belt around the equator, between the two tropics. Darker countries grow more. Tap one, or pick a big brand to see where it says its beans come from.</p>
       </div>
@@ -193,43 +201,40 @@
         <aside class="map-info" id="mapInfo" aria-live="polite"></aside>
       </div>
     </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="roaster"></div>
+      <div class="cc-type"><p class="cc-kicker">Roast it</p><p class="cc-title">The<br>fire</p><p class="cc-line">Hold the heat. Listen for the crack.</p></div>
+    </section>
     <!-- 05 ROAST -->
-    <section class="section" id="roast">
-      <div class="section-head">
-        <p class="eyebrow">05 · Roastery</p>
-        <h2>Turn up the heat</h2>
-        <p>Hold the burner to roast a green bean. Listen for <strong>first crack</strong> around 196 °C and <strong>second crack</strong> around 224 °C. Or just drag the thermometer.</p>
-      </div>
-
-      <div class="roaster">
-        <div class="roast-stage">
-          <div class="roast-bean-wrap" id="roastBeanWrap">
-            <svg id="roastBean" viewBox="0 0 240 280" aria-hidden="true">
-              <g id="roastSmoke" class="smoke"></g>
-              <g id="roastBeanBody">
-                <ellipse id="beanFill" cx="120" cy="150" rx="74" ry="102" />
-                <path id="beanCrease" d="M120,52 C96,100 146,150 112,200 C104,214 118,236 120,250" />
-                <ellipse cx="120" cy="150" rx="74" ry="102" fill="url(#beanShine)" id="beanOil" />
-              </g>
-              <g id="roastParticles"></g>
-            </svg>
-            <div class="flames" id="flames" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-          </div>
-          <div class="roast-controls">
-            <button class="btn btn-primary burner" id="heatBtn" type="button">🔥 Hold to roast</button>
-            <button class="btn btn-sm" id="roastReset" type="button">New green bean</button>
-            <button class="btn btn-sm" id="soundBtn" type="button" aria-pressed="true">🔊 Sound on</button>
-          </div>
+    <section class="roastery" id="roast">
+      <div class="roast-glow" aria-hidden="true"></div>
+      <div class="roast-flash" id="roastFlash" aria-live="polite"></div>
+      <div class="roast-scene">
+        <div class="roast-temp" aria-live="off"><span id="tempNow">20</span><sup>°C</sup><small id="roastName">Green</small></div>
+        <div class="roast-bean-wrap" id="roastBeanWrap">
+          <svg id="roastBean" viewBox="0 0 240 280" aria-hidden="true">
+            <g id="roastSmoke" class="smoke"></g>
+            <g id="roastBeanBody">
+              <ellipse id="beanFill" cx="120" cy="150" rx="74" ry="102" />
+              <path id="beanCrease" d="M120,52 C96,100 146,150 112,200 C104,214 118,236 120,250" />
+              <ellipse cx="120" cy="150" rx="74" ry="102" fill="url(#jShine)" id="beanOil" />
+            </g>
+            <g id="roastParticles"></g>
+          </svg>
+          <div class="flames" id="flames" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
-
-        <div class="roast-info">
-          <div class="thermo">
-            <label for="tempSlider" class="mini-title">Bean temperature</label>
-            <div class="thermo-row"><strong id="tempNow">20</strong><span>°C</span></div>
-            <input type="range" id="tempSlider" min="20" max="260" step="1" value="20" />
-            <div class="thermo-marks"><span style="--at:.733">1st crack</span><span style="--at:.85">2nd crack</span></div>
-          </div>
-          <h3 class="roast-name" id="roastName">Green</h3>
+        <div class="roast-controls">
+          <button class="btn burner" id="heatBtn" type="button">Hold to roast</button>
+          <button class="btn btn-ghost btn-sm" id="roastReset" type="button">New green bean</button>
+        </div>
+        <div class="thermo">
+          <input type="range" id="tempSlider" min="20" max="260" step="1" value="20" aria-label="Bean temperature" />
+          <div class="thermo-marks"><span style="--at:.733">First crack</span><span style="--at:.85">Second crack</span></div>
+        </div>
+      </div>
+      <details class="why why-dark">
+        <summary>What’s actually happening? <span>+</span></summary>
+        <div class="why-body roast-info">
           <p class="roast-note" id="roastNote"></p>
           <div class="flavor-meters" id="flavorMeters"></div>
           <div class="best-for" id="bestFor"></div>
@@ -238,12 +243,15 @@
             <p>Roasting barely touches caffeine. Dark beans lose more water and get lighter and puffier, so a <em>scoop</em> of light roast has a little more caffeine, while by <em>weight</em> dark roast edges ahead. Either way the difference is tiny. “Strong” tasting isn’t the same as more caffeine.</p>
           </aside>
         </div>
-      </div>
+      </details>
+    </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="grind"></div>
+      <div class="cc-type"><p class="cc-kicker">Grind it</p><p class="cc-title">The<br>grind</p><p class="cc-line">From boulders to flour.</p></div>
     </section>
     <!-- 06 GRIND GUIDE -->
     <section class="section" id="grind">
       <div class="section-head">
-        <p class="eyebrow">06 · Grind Guide</p>
         <h2>Size matters</h2>
         <p>The faster the brew, the finer the grind. Smaller pieces mean more surface for water to pull flavor from. Slide it or pick your brewer.</p>
       </div>
@@ -266,10 +274,20 @@
         </div>
       </div>
     </section>
+    <section class="soundboard" id="soundboard">
+      <p class="sb-kicker">Interlude</p>
+      <h2 class="sb-title">The sound<br /><em>of coffee.</em></h2>
+      <div class="sb-grid" id="soundBoard"></div>
+      <p class="sb-note" id="sbNote">Turn the sound on, then tap.</p>
+    </section>
+
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="steam"></div>
+      <div class="cc-type"><p class="cc-kicker">Taste it</p><p class="cc-title">The<br>nose</p><p class="cc-line">Taste it the way you’d smell a perfume.</p></div>
+    </section>
     <!-- 07 FLAVOR WHEEL -->
     <section class="section" id="flavor">
       <div class="section-head">
-        <p class="eyebrow">07 · Flavor Wheel</p>
         <h2>Name what you taste</h2>
         <p>Tasters use a wheel like this to put words to flavors. Start in the middle with something broad, then work your way out.</p>
       </div>
@@ -285,10 +303,13 @@
         </aside>
       </div>
     </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="hero"></div>
+      <div class="cc-type"><p class="cc-kicker">Make it</p><p class="cc-title">Behind<br>the bar</p><p class="cc-line">You’re the barista now.</p></div>
+    </section>
     <!-- 08 BARISTA SCHOOL -->
-    <section class="section" id="barista">
+    <section class="section bar-dark" id="barista">
       <div class="section-head">
-        <p class="eyebrow">08 · Barista School</p>
         <h2>Make it yourself</h2>
         <p>A guided, step-by-step build. Grind, tamp, pull the shot, pick your milk and flavor, steam it, and pour your own latte art. You do every step.</p>
       </div>
@@ -297,95 +318,120 @@
         <div class="b-stage" id="bStage"></div>
         <div class="b-panel">
           <div class="b-top-row"><p class="mini-title" id="bDrinkName"></p>
-            <div><button class="link" id="bChange" type="button" hidden>Change drink</button>
-            <button class="btn btn-sm b-sound" id="bSound" type="button" aria-pressed="true" aria-label="Sound">🔊</button></div></div>
+            <button class="link" id="bChange" type="button" hidden>Change drink</button></div>
           <h3 class="b-title" id="bTitle"></h3>
-          <div class="b-guide" id="bGuide"></div>
+          <p class="b-cue" id="bCue"></p>
+          <details class="why b-why" id="bWhy"><summary>Why? <span>+</span></summary><div class="why-body b-guide" id="bGuide"></div></details>
           <div class="b-controls" id="bControls"></div>
           <p class="b-feedback" id="bFeedback" aria-live="polite"></p>
           <button class="btn btn-primary b-next" id="bNext" type="button">Next →</button>
         </div>
       </div>
     </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="milk"></div>
+      <div class="cc-type"><p class="cc-kicker">Pour it</p><p class="cc-title">The<br>pour</p><p class="cc-line">Height, speed, and a little physics.</p></div>
+    </section>
     <!-- 09 POUR LAB -->
-    <section class="section" id="pour">
-      <div class="section-head">
-        <p class="eyebrow">09 · Pour Lab</p>
-        <h2>Pour your own</h2>
-        <p>Hold a pitcher to pour and let go to stop. Hold <strong>Sip</strong> to drink from the top down. <strong>Stir</strong> it to see what it looks like mixed.</p>
+    <section class="pourlab" id="pour">
+      <div class="pl-head">
+        <h2 class="pl-title">Pour it<em>yourself.</em></h2>
+        <p class="pl-hint">Pick a pitcher. Hold it over the cup. Press and hold to pour.</p>
       </div>
 
-      <div class="lab">
-        <div class="pitchers" id="pitchers" role="group" aria-label="Ingredients: hold to pour"></div>
+      <div class="pl-stage" id="cupWrap">
+        <svg id="cupSvg" viewBox="-50 -110 400 440" role="img" aria-label="Your cup. Move the pitcher over it and press to pour.">
+          <defs id="cupDefs"></defs>
+          <line class="pl-table" x1="-50" x2="350" y1="318" y2="318" />
+          <g id="puddle"></g>
+          <g id="cupLayers" clip-path="url(#labClip)"></g>
+          <g id="cremaTop"></g>
+          <g id="guideLines"></g>
+          <g id="cupOutline"></g>
+          <g id="stream" class="stream">
+            <rect id="streamBody" x="0" y="0" width="7" height="0" rx="3.5" />
+            <line id="streamFlow" x1="0" y1="0" x2="0" y2="0" />
+          </g>
+          <g id="splash"></g>
+          <g id="drips"></g>
+          <g id="steam" class="steam">
+            <path d="M120,60 q-8,-14 0,-28 q8,-14 0,-28" />
+            <path d="M145,64 q-8,-14 0,-28 q8,-14 0,-28" />
+            <path d="M170,60 q-8,-14 0,-28 q8,-14 0,-28" />
+          </g>
+          <g id="pitcherCursor" class="pl-pitcher"></g>
+          <text id="heightTag" class="pl-height"></text>
+        </svg>
+        <div class="tooltip" id="cupTip" hidden></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <p class="pl-match" id="plMatch" aria-live="polite"></p>
+      </div>
 
-        <div class="stage">
-          <div class="seg" id="cupPicker" role="radiogroup" aria-label="Cup size"></div>
-          <div class="cup-wrap" id="cupWrap">
-            <svg id="cupSvg" viewBox="0 0 300 330" role="img" aria-label="Your cup">
-              <defs id="cupDefs"></defs>
-              <g id="cupLayers" clip-path="url(#labClip)"></g>
-              <g id="guideLines"></g>
-              <g id="cupOutline"></g>
-              <g id="stream" class="stream">
-                <rect id="streamBody" x="0" y="0" width="7" height="0" rx="3.5" />
-                <line id="streamFlow" x1="0" y1="0" x2="0" y2="0" />
-              </g>
-              <g id="drips"></g>
-              <g id="steam" class="steam">
-                <path d="M120,60 q-8,-14 0,-28 q8,-14 0,-28" />
-                <path d="M145,64 q-8,-14 0,-28 q8,-14 0,-28" />
-                <path d="M170,60 q-8,-14 0,-28 q8,-14 0,-28" />
-              </g>
-            </svg>
-            <div class="tooltip" id="cupTip" hidden></div>
-            <div class="toast" id="toast" role="status" aria-live="polite"></div>
-          </div>
-          <div class="cup-actions">
-            <button class="btn btn-sm" id="sipBtn" type="button">☕ Hold to sip</button>
-            <button class="btn btn-sm" id="stirBtn" type="button" aria-pressed="false">🥄 Stir</button>
-            <button class="btn btn-sm" id="undoBtn" type="button">↶ Undo</button>
-            <button class="btn btn-sm" id="emptyBtn" type="button">Empty</button>
-          </div>
+      <div class="pitchers" id="pitchers" role="radiogroup" aria-label="Pick a pitcher (hold to pour from the default spot)"></div>
+      <div class="pl-controls">
+        <div class="seg" id="cupPicker" role="radiogroup" aria-label="Cup size"></div>
+        <div class="cup-actions">
+          <button class="btn btn-sm" id="sipBtn" type="button">Hold to sip</button>
+          <button class="btn btn-sm" id="stirBtn" type="button" aria-pressed="false">Stir</button>
+          <button class="btn btn-sm" id="undoBtn" type="button">Undo</button>
+          <button class="btn btn-sm" id="emptyBtn" type="button">Empty</button>
         </div>
+      </div>
 
-        <aside class="readout">
+      <div class="pl-why">
+        <p class="mini-title">Why did that happen?</p>
+        <p id="plWhy">Liquids stack by weight: syrup and chocolate sink, espresso sits on them, milk floats above, and foam floats on everything.</p>
+      </div>
+
+      <details class="why pl-numbers">
+        <summary>Show me the numbers <span>+</span></summary>
+        <div class="why-body readout">
           <label class="field">
             <span>Follow a recipe</span>
             <select id="recipeSelect"><option value="">Free pour</option></select>
           </label>
           <p class="recipe-hint" id="recipeHint" hidden></p>
-
           <div class="volume">
             <div class="volume-row"><strong id="volNow">0</strong><span> / <span id="volCap">0</span> ml</span></div>
             <div class="meter"><div class="meter-fill" id="volFill"></div></div>
           </div>
-
           <div>
             <h3 class="mini-title">Ratio</h3>
             <div class="ratio-bar" id="ratioBar"><span class="ratio-empty">empty cup</span></div>
             <p class="ratio-text" id="ratioText"></p>
           </div>
-
           <ul class="amounts" id="amounts"></ul>
-
           <div class="match" id="match" aria-live="polite"></div>
-        </aside>
-      </div>
+        </div>
+      </details>
+    </section>
+    <section class="chapter-card" aria-hidden="true">
+      <div class="cc-photo" data-photo="latte"></div>
+      <div class="cc-type"><p class="cc-kicker">Choose it</p><p class="cc-title">The<br>menu</p><p class="cc-line">Same espresso. Different drink.</p></div>
     </section>
     <!-- 10 DRINK GUIDE -->
     <section class="section" id="drinks">
       <div class="section-head">
-        <p class="eyebrow">10 · Drink Guide</p>
         <h2>Every drink, to scale</h2>
         <p>Hover or tap a card to watch it get built. Cups are drawn at their real relative sizes.</p>
       </div>
       <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
       <div class="drink-grid" id="drinkGrid"></div>
     </section>
+    <section class="morning" id="morning">
+      <div class="morning-photo" data-photo="morning" role="img" aria-label="A steaming mug on a wooden table by a sunny window"></div>
+      <div class="morning-shade"></div>
+      <div class="morning-type">
+        <p class="m-small">And after all that…</p>
+        <p class="m-big">It’s just<br /><em>your morning coffee.</em></p>
+        <a class="m-again" href="#top">Start another cup <span aria-hidden="true">↻</span></a>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
     <p>Brewniverse · recipes and numbers are typical café values, and every shop does it a little differently.</p>
+    <p class="credits">Photos from <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> by <span id="photoCredits"></span>.</p>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>

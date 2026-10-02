@@ -1,11 +1,13 @@
 // Roast: hold the burner, watch the bean change, hear it crack.
 import { ROAST_COLORS, ROAST_STAGES, FIRST_CRACK, SECOND_CRACK } from './data.js';
+import { Sound } from './sound.js';
 
 const $ = id => document.getElementById(id);
 const MIN = 20, MAX = 260;
 const METERS = [['acidity', 'Acidity'], ['body', 'Body'], ['bitterness', 'Bitterness'], ['oil', 'Surface oil']];
 
-const state = { temp: MIN, heating: false, last: 0, sound: true };
+const state = { temp: MIN, heating: false, last: 0 };
+let hum = null;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- color + stage math ----------
@@ -45,41 +47,21 @@ function metersAt(t) {
   return brewable[brewable.length - 1].meters;
 }
 
-// ---------- sound (tiny synthesized pops, no audio files) ----------
-
-let ctx;
-function pop(loud = 1) {
-  if (!state.sound) return;
-  try {
-    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-    const len = 0.03;
-    const buf = ctx.createBuffer(1, ctx.sampleRate * len, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 4);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1200 + Math.random() * 2400;
-    const gain = ctx.createGain();
-    gain.gain.value = 0.6 * loud;
-    src.connect(filter).connect(gain).connect(ctx.destination);
-    src.start();
-  } catch { /* no audio, no problem */ }
-}
+function pop() { Sound.sfx('crack'); }
 
 function crackBurst(kind) {
   const first = kind === 'first';
   const count = first ? 9 : 16;
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
-      pop(first ? 1 : 0.5);
+      pop();
       spark(first);
     }, Math.random() * (first ? 1600 : 1200));
   }
-  const wrap = $('roastBeanWrap');
-  wrap.dataset.crack = first ? 'First crack!' : 'Second crack!';
-  wrap.classList.remove('cracking'); void wrap.offsetWidth; wrap.classList.add('cracking');
+  // the whole room flashes the moment it cracks
+  const flash = $('roastFlash');
+  flash.innerHTML = first ? `<b>Crack.</b><span>First crack · ${FIRST_CRACK}°C</span>` : `<b>Crack.</b><span>Second crack · ${SECOND_CRACK}°C</span>`;
+  flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
 }
 
 function spark(big) {
@@ -117,20 +99,24 @@ function heatTick(now) {
   state.last = now;
   const rate = state.temp < 150 ? 32 : 14; // °C per second: fast drying, slow development
   setTemp(state.temp + rate * dt);
+  hum?.set(heatLevel());
   if (state.temp >= MAX) return stopHeat();
   requestAnimationFrame(heatTick);
 }
 
 function startHeat() {
   if (state.heating) return;
-  if (ctx && ctx.state === 'suspended') ctx.resume();
+  hum = Sound.loop('roaster', heatLevel());
   state.heating = true;
   state.last = performance.now();
   $('flames').classList.add('on');
   requestAnimationFrame(heatTick);
 }
 
+function heatLevel() { return Math.max(0, Math.min(1, (state.temp - MIN) / (MAX - MIN))); }
+
 function stopHeat() {
+  hum?.stop(); hum = null;
   state.heating = false;
   $('flames').classList.remove('on');
 }
@@ -146,13 +132,13 @@ function render() {
   $('beanFill').style.fill = `rgb(${r},${g},${b})`;
   $('beanCrease').style.stroke = `rgb(${Math.round(r * 0.55)},${Math.round(g * 0.55)},${Math.round(b * 0.55)})`;
   const oil = m ? m.oil / 5 : 0;
-  $('beanOil').style.opacity = 0.15 + oil * 0.85;
+  $('beanOil').style.opacity = 0.12 + oil * 0.3;
   // beans puff up as they roast
   const puff = 1 + 0.14 * Math.max(0, Math.min(1, (t - 150) / 100));
   $('roastBeanBody').style.transform = `scale(${puff})`;
 
   const smoke = $('roastSmoke');
-  const smokeLevel = t < 225 ? 0 : t < 250 ? 1 : 2;
+  const smokeLevel = t < 205 ? 0 : t < 230 ? 1 : t < 248 ? 2 : 3;
   if (smoke.dataset.level !== String(smokeLevel)) {
     smoke.dataset.level = smokeLevel;
     smoke.innerHTML = smokeLevel
@@ -162,6 +148,7 @@ function render() {
   }
 
   $('tempNow').textContent = Math.round(t);
+  $('roast').style.setProperty('--heat', heatLevel().toFixed(3));
   $('roastName').textContent = stage.name === 'Green' || stage.name === 'Drying' || stage.name === 'Browning' || stage.name === 'Burnt'
     ? stage.name : `${stage.name} roast`;
   $('roastNote').textContent = stage.note;
@@ -187,10 +174,5 @@ export function initRoast() {
 
   $('tempSlider').addEventListener('input', e => setTemp(+e.target.value, true));
   $('roastReset').addEventListener('click', () => { stopHeat(); state.temp = MIN; $('tempSlider').value = MIN; render(); });
-  $('soundBtn').addEventListener('click', () => {
-    state.sound = !state.sound;
-    $('soundBtn').setAttribute('aria-pressed', state.sound);
-    $('soundBtn').textContent = state.sound ? '🔊 Sound on' : '🔇 Sound off';
-  });
   render();
 }

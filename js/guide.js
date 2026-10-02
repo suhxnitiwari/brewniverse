@@ -1,4 +1,4 @@
-// Drink Guide cards + the hero cup. Both "build" a drink layer by layer.
+// Drink Guide cards. Each one "builds" its drink layer by layer.
 import { DRINKS, INGREDIENTS, STACK_ORDER } from './data.js';
 import { cupSVG, fitCup, total, ratioParts, recipeText } from './cup.js';
 import { followRecipe } from './pour.js';
@@ -83,23 +83,4 @@ export function initGuide() {
       card.hidden = f !== 'all' && !card.dataset.tags.split(' ').includes(f);
     });
   });
-}
-
-export function initHero() {
-  const btn = document.getElementById('heroCup');
-  const art = document.getElementById('heroCupArt');
-  const name = document.getElementById('heroCupName');
-  const lineup = ['cappuccino', 'americano', 'mocha', 'cortado', 'latte', 'macchiato', 'flatwhite']
-    .map(id => DRINKS.find(d => d.id === id));
-  let i = 0, timer;
-  const show = () => {
-    const d = lineup[i % lineup.length];
-    name.textContent = d.name;
-    animateBuild(art, d.recipe, 1800);
-    i++;
-    clearTimeout(timer);
-    timer = setTimeout(show, 4200);
-  };
-  btn.addEventListener('click', show);
-  show();
 }

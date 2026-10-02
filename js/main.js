@@ -1,3 +1,4 @@
+import { initSite } from './site.js';
 import { initJourney } from './journey.js';
 import { initAnatomy } from './anatomy.js';
 import { initBeans } from './beans.js';
@@ -7,9 +8,9 @@ import { initGrind } from './grind.js';
 import { initWheel } from './wheel.js';
 import { initBarista } from './barista.js';
 import { initPour } from './pour.js';
-import { initGuide, initHero } from './guide.js';
+import { initGuide } from './guide.js';
 
-initHero();
+initSite();
 initJourney();
 initAnatomy();
 initBeans();

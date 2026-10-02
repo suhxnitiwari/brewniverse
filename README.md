@@ -6,7 +6,11 @@ An interactive coffee guide. No frameworks, no build step: just HTML, CSS and Ja
 
 ## What you can do
 
+It opens like a film and gets more hands-on as you scroll. Turn **Sound** on in the top corner: every chapter has its own ambient bed (birds on the farm, water at the mill, the roaster, café murmur), and grinding, steaming, pulling and pouring all make their own sounds. Every sound is synthesized live with the Web Audio API, with no audio files.
+
 The site follows coffee from the tree to your mug:
+
+0. **The journey:** one coffee cherry travels down the page as you scroll and transforms into a seed, a green bean, a sack on a ship, a roasting bean (watch the temperature climb to first crack), grounds, espresso, milk, and finally latte art, over full-bleed photos. Every chapter has a “Why? +” with the detailed steps.
 
 1. **Seed to Cup:** 15 steps from planting to sipping (harvest, float sorting, washed / natural / honey processing, drying, hulling, grading, shipping, roasting, resting, grinding, brewing). A meter tracks how 5 kg of cherries shrinks to about 55 cups.
 2. **Bean Anatomy:** a cross-section of a coffee cherry. Peel the 7 layers the way a farm processes coffee, and flip to a peaberry.
@@ -15,9 +19,11 @@ The site follows coffee from the tree to your mug:
 5. **Roastery:** hold the burner to roast a green bean through first and second crack, with live flavor meters.
 6. **Grind Guide:** extra coarse (cold brew) to extra fine (Turkish), with magnified grounds, brew times and the “sour → finer, bitter → coarser” rule.
 7. **Flavor Wheel:** a tasting wheel you read from the middle out. Tap notes to build your own tasting card.
-8. **Barista School:** a guided build. Pick a drink (espresso, americano, latte, flat white, cappuccino, macchiato, mocha, breve), add syrups, then grind, tamp and pull the shot yourself. Pick whole, 2%, oat, almond, soy or half & half, steam it to the right temperature, pour it with latte art (heart, tulip, rosetta, swan), and get scored.
-9. **Pour Lab:** hold pitchers to pour any drink and watch the ratio form.
+8. **Barista School:** a game behind a dark espresso bar. Pick a drink (espresso, americano, latte, flat white, cappuccino, macchiato, mocha, breve), add syrups, then grind, distribute, tamp, lock in and pull the shot yourself (a coarse grind gushes, a loose puck spurts). Pick whole, 2%, oat, almond, soy or half & half, purge the wand, steam it to the right temperature, tap and swirl, pour it with latte art (heart, tulip, rosetta, swan), and get scored.
+9. **Pour Lab:** a huge cup and a pitcher that follows your cursor. Height matters: pour milk from high up and it dives under the crema; pour low and the foam floats. A “Why did that happen?” note explains each pour.
 10. **Drink Guide:** 18 drinks drawn to scale from their recipes.
+
+It ends on a quiet morning-coffee scene. Photos are from [Unsplash](https://unsplash.com) (credited in the footer and in [`js/photos.js`](js/photos.js)), loaded from Unsplash’s image CDN.
 
 Drinks live in [`js/data.js`](js/data.js); everything else (journey, species, map origins, grinds, flavors) is in [`js/world-data.js`](js/world-data.js). The map loads d3, topojson and country shapes from a CDN, so it needs an internet connection.
 
@@ -43,8 +49,11 @@ css/style.css     all styles (light + dark mode)
 js/data.js        drinks, ingredients, cups, anatomy, roast data
 js/world-data.js  journey, species, roast levels, origins + brands, grinds, flavor wheel
 js/util.js        press-and-hold, animation ticker, small helpers
+js/sound.js       the sound engine: ambient beds, effects, held loops
+js/photos.js      Unsplash photos + credits
+js/site.js        nav, chapter menu, sound toggle, soundboard, reveals
 js/cup.js         cup drawing + ratio / matching math
-js/journey.js     Seed to Cup
+js/journey.js     the scroll-driven bean journey
 js/anatomy.js     Bean Anatomy
 js/beans.js       Beans & Roasts
 js/map.js         Coffee Map (d3 + world-atlas)
