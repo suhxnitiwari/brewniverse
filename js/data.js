@@ -2,6 +2,7 @@
 
 // rate = ml per second while you hold the pitcher
 export const INGREDIENTS = {
+  syrup:     { name: 'Flavor syrup',  short: 'syrup',     color: '#c98a3e', rate: 8 },
   espresso:  { name: 'Espresso',      short: 'espresso',  color: '#2b170d', rate: 20 },
   brewed:    { name: 'Brewed coffee', short: 'coffee',    color: '#6b4429', rate: 50 },
   water:     { name: 'Hot water',     short: 'water',     color: '#c9e4f2', rate: 50, opacity: 0.8 },
@@ -15,7 +16,7 @@ export const INGREDIENTS = {
 export const PITCHER_ORDER = ['espresso', 'brewed', 'water', 'milk', 'foam', 'chocolate', 'cream'];
 
 // Bottom → top. Heavy syrup sinks, foam and cream float.
-export const STACK_ORDER = ['chocolate', 'espresso', 'brewed', 'water', 'milk', 'foam', 'cream'];
+export const STACK_ORDER = ['syrup', 'chocolate', 'espresso', 'brewed', 'water', 'milk', 'foam', 'cream'];
 
 export const CUPS = {
   demitasse: { name: 'Demitasse', capacity: 100, topW: 124, botW: 84,  h: 96,  handle: true },
@@ -67,6 +68,9 @@ export const DRINKS = [
   { id: 'latte', name: 'Caffè Latte', tags: ['milk'],
     recipe: { espresso: 60, milk: 200, foam: 20 },
     blurb: 'Mostly steamed milk with a thin layer of foam. The gentlest espresso drink.' },
+  { id: 'breve', name: 'Breve', tags: ['milk', 'sweet'],
+    recipe: { espresso: 60, milk: 150, foam: 30 },
+    blurb: 'A latte made with steamed half-and-half instead of milk. Rich, creamy and very American.' },
   { id: 'aulait', name: 'Café au Lait', tags: ['milk'],
     recipe: { brewed: 150, milk: 150 },
     blurb: 'Brewed coffee and hot milk, half and half. No espresso involved.' },

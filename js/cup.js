@@ -47,14 +47,14 @@ function hexToRgb(hex) {
 }
 
 // Weighted average color of everything that isn't floating on top.
-export function mixColor(amounts) {
+export function mixColor(amounts, colors = {}) {
   let total = 0; const acc = [0, 0, 0];
   for (const key of STACK_ORDER) {
     const ml = amounts[key] || 0;
     if (!ml || INGREDIENTS[key].floats) continue;
     // water dilutes but barely shows color, so weight it lightly
     const w = key === 'water' ? ml * 0.35 : ml;
-    hexToRgb(INGREDIENTS[key].color).forEach((c, i) => (acc[i] += c * w));
+    hexToRgb(colors[key] || INGREDIENTS[key].color).forEach((c, i) => (acc[i] += c * w));
     total += w;
   }
   if (!total) return null;
@@ -62,23 +62,25 @@ export function mixColor(amounts) {
 }
 
 // Build the list of visible bands, bottom to top.
-export function bands(amounts, mixed = false) {
+export function bands(amounts, mixed = false, colors = {}) {
+  const col = k => colors[k] || INGREDIENTS[k].color;
   const out = [];
   if (mixed) {
     const liquid = STACK_ORDER.filter(k => !INGREDIENTS[k].floats).reduce((s, k) => s + (amounts[k] || 0), 0);
-    if (liquid > 0) out.push({ key: 'mixed', ml: liquid, color: mixColor(amounts) });
-    for (const k of STACK_ORDER) if (INGREDIENTS[k].floats && amounts[k] > 0) out.push({ key: k, ml: amounts[k], color: INGREDIENTS[k].color });
+    if (liquid > 0) out.push({ key: 'mixed', ml: liquid, color: mixColor(amounts, colors) });
+    for (const k of STACK_ORDER) if (INGREDIENTS[k].floats && amounts[k] > 0) out.push({ key: k, ml: amounts[k], color: col(k) });
   } else {
-    for (const k of STACK_ORDER) if (amounts[k] > 0) out.push({ key: k, ml: amounts[k], color: INGREDIENTS[k].color });
+    for (const k of STACK_ORDER) if (amounts[k] > 0) out.push({ key: k, ml: amounts[k], color: col(k) });
   }
   return out;
 }
 
-export function layersMarkup(geo, amounts, { mixed = false } = {}) {
+// colors: optional per-ingredient overrides (e.g. oat milk is a little beiger than dairy)
+export function layersMarkup(geo, amounts, { mixed = false, colors = {} } = {}) {
   const { x1, x2, mlToPx, widthAt, cup } = geo;
   let y = BOTTOM;
   let svg = '';
-  const list = bands(amounts, mixed);
+  const list = bands(amounts, mixed, colors);
   list.forEach((b, i) => {
     const h = b.ml * mlToPx;
     const yTop = y - h;
@@ -102,12 +104,12 @@ export function layersMarkup(geo, amounts, { mixed = false } = {}) {
 }
 
 // A complete, static cup (used for cards and previews).
-export function cupSVG(cupKey, amounts, { mixed = false, className = '' } = {}) {
+export function cupSVG(cupKey, amounts, { mixed = false, className = '', colors = {} } = {}) {
   const geo = geometry(cupKey);
   const id = `clip-${++uid}`;
   return `<svg class="cup-svg ${className}" viewBox="${VIEWBOX}" aria-hidden="true">
     <defs>${clipMarkup(geo, id)}</defs>
-    <g clip-path="url(#${id})">${layersMarkup(geo, amounts, { mixed })}</g>
+    <g clip-path="url(#${id})">${layersMarkup(geo, amounts, { mixed, colors })}</g>
     ${outlineMarkup(geo)}
   </svg>`;
 }

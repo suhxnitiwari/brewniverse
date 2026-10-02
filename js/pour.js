@@ -4,6 +4,7 @@ import {
   CX, BOTTOM, geometry, outlineMarkup, clipMarkup, layersMarkup, bands,
   total, matches, ratioParts, fitCup, cupSVG, recipeText,
 } from './cup.js';
+import { holdable } from './util.js';
 
 const $ = id => document.getElementById(id);
 
@@ -69,27 +70,6 @@ function buildRecipeSelect() {
   const sel = $('recipeSelect');
   sel.insertAdjacentHTML('beforeend', DRINKS.map(d => `<option value="${d.id}">${d.name}</option>`).join(''));
   sel.addEventListener('change', () => followRecipe(sel.value));
-}
-
-// Press-and-hold on mouse, touch, and keyboard (Space / Enter).
-function holdable(el, onStart, onStop) {
-  el.addEventListener('pointerdown', e => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    try { el.setPointerCapture(e.pointerId); } catch {}
-    el.classList.add('is-held');
-    onStart();
-  });
-  const end = () => { el.classList.remove('is-held'); onStop(); };
-  el.addEventListener('pointerup', end);
-  el.addEventListener('pointercancel', end);
-  el.addEventListener('lostpointercapture', end);
-  el.addEventListener('contextmenu', e => e.preventDefault());
-  el.addEventListener('keydown', e => {
-    if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); el.classList.add('is-held'); onStart(); }
-  });
-  el.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') end(); });
-  el.addEventListener('blur', end);
 }
 
 function bindActions() {

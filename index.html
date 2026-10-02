@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Brewniverse</title>
-  <meta name="description" content="An interactive coffee guide: pour your own drinks, peel a coffee cherry, and roast a bean." />
+  <meta name="description" content="The whole world of coffee: seed to cup, bean types, a world map of where coffee grows, a flavor wheel, and a guided barista school." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,21 +30,27 @@
   <nav class="nav">
     <a class="brand" href="#top">Brewniverse</a>
     <div class="nav-links">
+      <a href="#journey">Journey</a>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#beans">Beans</a>
+      <a href="#coffeemap">Map</a>
+      <a href="#roast">Roast</a>
+      <a href="#grind">Grind</a>
+      <a href="#flavor">Flavor</a>
+      <a href="#barista">Barista</a>
       <a href="#pour">Pour</a>
       <a href="#drinks">Drinks</a>
-      <a href="#anatomy">Anatomy</a>
-      <a href="#roast">Roastery</a>
     </div>
   </nav>
 
   <header class="hero" id="top">
     <div class="hero-text">
-      <p class="eyebrow">An interactive coffee guide</p>
+      <p class="eyebrow">The whole world of coffee</p>
       <h1>What’s actually<br />in your cup?</h1>
-      <p class="lede">Pour your own drinks and watch the ratios form. Peel a coffee cherry down to the seed. Roast a bean until it cracks.</p>
+      <p class="lede">Follow a bean from the tree to your mug. See where coffee grows and where the big chains buy it. Then grind, tamp, steam and pour your own latte.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#pour">Start pouring</a>
-        <a class="btn" href="#anatomy">Peel a cherry</a>
+        <a class="btn btn-primary" href="#journey">Start the journey</a>
+        <a class="btn" href="#barista">Make a latte</a>
       </div>
     </div>
     <button class="hero-cup" id="heroCup" type="button" aria-label="Show the next drink">
@@ -55,10 +61,256 @@
   </header>
 
   <main>
-    <!-- 01 POUR LAB -->
+    <!-- 01 SEED TO CUP -->
+    <section class="section" id="journey">
+      <div class="section-head">
+        <p class="eyebrow">01 · Seed to Cup</p>
+        <h2>From a tree to your mug</h2>
+        <p>Coffee goes through a lot of hands before it reaches you. Step through all of it, or hit autoplay and watch. Arrow keys work too.</p>
+      </div>
+      <ol class="j-steps" id="jSteps" aria-label="Steps"></ol>
+      <div class="journey" tabindex="-1">
+        <div class="j-art-wrap">
+          <svg id="jArt" class="j-art" viewBox="0 0 320 240" aria-hidden="true"></svg>
+          <div class="j-mass" id="jMass" hidden>
+            <span class="mini-title">How much is left</span>
+            <div class="meter"><div class="meter-fill" id="jMassFill"></div></div>
+            <p id="jMassText"></p>
+          </div>
+        </div>
+        <article class="j-card" aria-live="polite">
+          <p class="j-meta"><span id="jCount"></span> · <span id="jPhase"></span></p>
+          <h3 id="jTitle"></h3>
+          <p class="j-time" id="jTime"></p>
+          <div id="jBody"></div>
+          <div class="j-nav">
+            <button class="btn btn-sm" id="jPrev" type="button">← Back</button>
+            <button class="btn btn-sm" id="jPlay" type="button" aria-pressed="false">▶ Autoplay</button>
+            <button class="btn btn-primary" id="jNext" type="button">Next →</button>
+          </div>
+        </article>
+      </div>
+    </section>
+    <!-- 02 ANATOMY -->
+    <section class="section" id="anatomy">
+      <div class="section-head">
+        <p class="eyebrow">02 · Bean Anatomy</p>
+        <h2>A coffee bean is a seed</h2>
+        <p>Before it’s roasted, it’s wrapped in layers of fruit and husk. Tap any layer to learn what it is, or peel the cherry the way a farm does.</p>
+      </div>
+
+      <div class="anatomy">
+        <div class="anatomy-figure">
+          <div class="anatomy-svg-wrap">
+            <svg id="anatomySvg" viewBox="0 0 400 420" role="img" aria-label="Cross-section of a coffee cherry"></svg>
+            <p class="anatomy-caption" id="anatomyCaption">Tap a layer</p>
+          </div>
+          <div class="process">
+            <div class="process-head">
+              <label for="stageSlider" class="mini-title">Processing</label>
+              <div class="process-btns">
+                <button class="btn btn-sm" id="peelBtn" type="button">Peel next layer →</button>
+                <button class="btn btn-sm" id="peaberryBtn" type="button" aria-pressed="false">Peaberry</button>
+              </div>
+            </div>
+            <input type="range" id="stageSlider" min="0" max="4" step="1" value="0" />
+            <ol class="stage-ticks" id="stageTicks"></ol>
+            <p class="stage-text" id="stageText"></p>
+          </div>
+        </div>
+
+        <div class="anatomy-info">
+          <ol class="layer-list" id="layerList"></ol>
+          <article class="layer-card" id="layerCard" aria-live="polite"></article>
+        </div>
+      </div>
+
+      <div class="facts">
+        <div class="fact"><h3>Peaberry</h3><p>In roughly 5–10% of cherries only one seed develops. It grows round instead of flat. Hit the Peaberry button to see one.</p></div>
+        <div class="fact"><h3>The center cut</h3><p>The S-shaped crease down a roasted bean is where the edges of the seed folded in as it grew.</p></div>
+        <div class="fact"><h3>It’s a fruit</h3><p>Coffee grows on <em>Coffea</em> shrubs, which are in the same plant family as gardenias. The “beans” are the seeds of its cherries.</p></div>
+      </div>
+    </section>
+    <!-- 03 BEANS & ROASTS -->
+    <section class="section" id="beans">
+      <div class="section-head">
+        <p class="eyebrow">03 · Beans &amp; Roasts</p>
+        <h2>Not all beans are the same</h2>
+        <p>There are over 130 species of coffee plant, but nearly everything you drink is one of two: Arabica or Robusta. Tap a bean to compare them and see where the names come from.</p>
+      </div>
+      <div class="name-ladder">
+        <p class="mini-title">How coffee names fit together</p>
+        <ol>
+          <li><b>Species</b><span>The kind of plant</span><em>Arabica</em></li>
+          <li><b>Variety</b><span>A breed of that plant</span><em>Caturra</em></li>
+          <li><b>Origin</b><span>Where it grew</span><em>Colombia</em></li>
+          <li><b>Grade</b><span>Bean size or quality</span><em>Supremo</em></li>
+          <li><b>Roast</b><span>How dark it’s cooked</span><em>Medium</em></li>
+        </ol>
+        <p class="name-eg">So a bag of <b>“Colombian Supremo, medium roast”</b> is Arabica (the plant), often the Caturra or Castillo variety, grown in Colombia, with extra-large beans, roasted medium. “Arabica” and “Colombian” aren’t competing types. One is <em>what</em> it is, the other is <em>where</em> it’s from.</p>
+      </div>
+
+      <div class="sp-tabs" id="speciesTabs" role="group" aria-label="Coffee species"></div>
+      <article class="sp-card" id="speciesCard" aria-live="polite"></article>
+      <div class="caffeine-ladder" id="caffeineLadder" role="group" aria-label="Species ranked by caffeine"></div>
+
+      <h3 class="sub-head">Coffees by origin</h3>
+      <p class="sub-lede">Take a species (almost always Arabica), grow it in a particular place, and it picks up that place’s flavor from the soil, altitude, weather and how the farmers process it. That’s why bags say “Colombian,” “Kenya AA” or “Sumatra.” Same plant, different home, different taste.</p>
+      <div class="chips" id="originFilters" role="group" aria-label="Filter coffees by region"></div>
+      <div class="origins" id="origins"></div>
+
+      <h3 class="sub-head">Rare &amp; wild species</h3>
+      <p class="sub-lede">Coffee plants you’ll almost never find in a café, though a couple might matter a lot as the planet warms.</p>
+      <div class="facts rare" id="rareSpecies"></div>
+
+      <h3 class="sub-head">Varieties</h3>
+      <p class="sub-lede">Inside each species there are varieties, the way Granny Smith and Fuji are both apples. Almost all Arabica traces back to two lines that left Yemen, Typica and Bourbon. Some ripen red, others yellow, orange or pink.</p>
+      <div class="chips" id="varietyFilters" role="group" aria-label="Filter varieties by family"></div>
+      <ul class="varieties" id="varieties"></ul>
+
+      <h3 class="sub-head">Roast levels</h3>
+      <p class="sub-lede">The same green bean can end up any of these colors. Darker isn’t stronger, it just tastes more like the roast and less like the bean. Tap a pile.</p>
+      <div class="roast-levels">
+        <div class="piles" id="roastPiles" role="group" aria-label="Roast levels"></div>
+        <article class="sp-card roast-card" id="roastCard" aria-live="polite"></article>
+      </div>
+    </section>
+    <!-- 04 COFFEE MAP -->
+    <section class="section" id="coffeemap">
+      <div class="section-head">
+        <p class="eyebrow">04 · Coffee Map</p>
+        <h2>Where coffee grows</h2>
+        <p>Coffee only grows in a belt around the equator, between the two tropics. Darker countries grow more. Tap one, or pick a big brand to see where it says its beans come from.</p>
+      </div>
+      <div class="chips" id="brandChips" role="group" aria-label="Show sourcing for a brand"></div>
+      <div class="map-layout">
+        <div class="map-wrap" id="mapWrap">
+          <svg id="mapSvg" viewBox="0 0 960 500" role="img" aria-label="World map of coffee-growing countries"></svg>
+          <p class="map-loading" id="mapLoading">Loading the map…</p>
+          <div class="tooltip" id="mapTip" hidden></div>
+          <div class="map-legend"><span>less</span><i></i><span>more coffee</span><b class="belt-key">bean belt</b></div>
+        </div>
+        <aside class="map-info" id="mapInfo" aria-live="polite"></aside>
+      </div>
+    </section>
+    <!-- 05 ROAST -->
+    <section class="section" id="roast">
+      <div class="section-head">
+        <p class="eyebrow">05 · Roastery</p>
+        <h2>Turn up the heat</h2>
+        <p>Hold the burner to roast a green bean. Listen for <strong>first crack</strong> around 196 °C and <strong>second crack</strong> around 224 °C. Or just drag the thermometer.</p>
+      </div>
+
+      <div class="roaster">
+        <div class="roast-stage">
+          <div class="roast-bean-wrap" id="roastBeanWrap">
+            <svg id="roastBean" viewBox="0 0 240 280" aria-hidden="true">
+              <g id="roastSmoke" class="smoke"></g>
+              <g id="roastBeanBody">
+                <ellipse id="beanFill" cx="120" cy="150" rx="74" ry="102" />
+                <path id="beanCrease" d="M120,52 C96,100 146,150 112,200 C104,214 118,236 120,250" />
+                <ellipse cx="120" cy="150" rx="74" ry="102" fill="url(#beanShine)" id="beanOil" />
+              </g>
+              <g id="roastParticles"></g>
+            </svg>
+            <div class="flames" id="flames" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="roast-controls">
+            <button class="btn btn-primary burner" id="heatBtn" type="button">🔥 Hold to roast</button>
+            <button class="btn btn-sm" id="roastReset" type="button">New green bean</button>
+            <button class="btn btn-sm" id="soundBtn" type="button" aria-pressed="true">🔊 Sound on</button>
+          </div>
+        </div>
+
+        <div class="roast-info">
+          <div class="thermo">
+            <label for="tempSlider" class="mini-title">Bean temperature</label>
+            <div class="thermo-row"><strong id="tempNow">20</strong><span>°C</span></div>
+            <input type="range" id="tempSlider" min="20" max="260" step="1" value="20" />
+            <div class="thermo-marks"><span style="--at:.733">1st crack</span><span style="--at:.85">2nd crack</span></div>
+          </div>
+          <h3 class="roast-name" id="roastName">Green</h3>
+          <p class="roast-note" id="roastNote"></p>
+          <div class="flavor-meters" id="flavorMeters"></div>
+          <div class="best-for" id="bestFor"></div>
+          <aside class="myth">
+            <h3>Myth: dark roast has more caffeine</h3>
+            <p>Roasting barely touches caffeine. Dark beans lose more water and get lighter and puffier, so a <em>scoop</em> of light roast has a little more caffeine, while by <em>weight</em> dark roast edges ahead. Either way the difference is tiny. “Strong” tasting isn’t the same as more caffeine.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <!-- 06 GRIND GUIDE -->
+    <section class="section" id="grind">
+      <div class="section-head">
+        <p class="eyebrow">06 · Grind Guide</p>
+        <h2>Size matters</h2>
+        <p>The faster the brew, the finer the grind. Smaller pieces mean more surface for water to pull flavor from. Slide it or pick your brewer.</p>
+      </div>
+      <div class="chips" id="grindMethods" role="group" aria-label="Brew methods"></div>
+      <div class="grind">
+        <div class="grind-view">
+          <svg id="grindArt" class="grind-art" viewBox="0 0 240 160" role="img"></svg>
+          <p class="grind-mag">magnified · <span id="grindMm"></span></p>
+        </div>
+        <div class="grind-info">
+          <input type="range" id="grindSlider" min="0" max="6" step="1" aria-label="Grind size" />
+          <ol class="grind-scale" id="grindScale"></ol>
+          <h3 class="roast-name" id="grindName"></h3>
+          <p class="grind-like" id="grindLike"></p>
+          <div class="best-for"><span class="mini-title">Use it for</span><span id="grindBrew"></span></div>
+          <p><span class="mini-title">Brew time</span><b id="grindTime"></b></p>
+          <div><span class="mini-title">Surface area</span><div class="meter"><div class="meter-fill" id="grindSurface"></div></div></div>
+          <p class="layer-fact" id="grindNote"></p>
+          <aside class="myth"><h3>Dial it in</h3><p>Tastes <b>sour</b> or thin? Grind <b>finer</b>. Tastes <b>bitter</b> or harsh? Grind <b>coarser</b>. That one rule fixes most bad coffee.</p></aside>
+        </div>
+      </div>
+    </section>
+    <!-- 07 FLAVOR WHEEL -->
+    <section class="section" id="flavor">
+      <div class="section-head">
+        <p class="eyebrow">07 · Flavor Wheel</p>
+        <h2>Name what you taste</h2>
+        <p>Tasters use a wheel like this to put words to flavors. Start in the middle with something broad, then work your way out.</p>
+      </div>
+      <div class="wheel">
+        <div class="wheel-wrap"><svg id="wheelSvg" viewBox="-380 -380 760 760" role="group" aria-label="Coffee flavor wheel"></svg></div>
+        <aside class="wheel-side">
+          <div class="layer-card" id="wheelInfo" aria-live="polite"></div>
+          <div class="my-notes">
+            <div class="process-head"><h3 class="mini-title">My tasting notes</h3><button class="link" id="clearNotes" type="button" hidden>Clear</button></div>
+            <div class="chips" id="myNotes"></div>
+            <p class="notes-line" id="notesLine"></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <!-- 08 BARISTA SCHOOL -->
+    <section class="section" id="barista">
+      <div class="section-head">
+        <p class="eyebrow">08 · Barista School</p>
+        <h2>Make it yourself</h2>
+        <p>A guided, step-by-step build. Grind, tamp, pull the shot, pick your milk and flavor, steam it, and pour your own latte art. You do every step.</p>
+      </div>
+      <ol class="b-steps" id="bSteps" aria-label="Progress"></ol>
+      <div class="b-bar">
+        <div class="b-stage" id="bStage"></div>
+        <div class="b-panel">
+          <div class="b-top-row"><p class="mini-title" id="bDrinkName"></p>
+            <div><button class="link" id="bChange" type="button" hidden>Change drink</button>
+            <button class="btn btn-sm b-sound" id="bSound" type="button" aria-pressed="true" aria-label="Sound">🔊</button></div></div>
+          <h3 class="b-title" id="bTitle"></h3>
+          <div class="b-guide" id="bGuide"></div>
+          <div class="b-controls" id="bControls"></div>
+          <p class="b-feedback" id="bFeedback" aria-live="polite"></p>
+          <button class="btn btn-primary b-next" id="bNext" type="button">Next →</button>
+        </div>
+      </div>
+    </section>
+    <!-- 09 POUR LAB -->
     <section class="section" id="pour">
       <div class="section-head">
-        <p class="eyebrow">01 · Pour Lab</p>
+        <p class="eyebrow">09 · Pour Lab</p>
         <h2>Pour your own</h2>
         <p>Hold a pitcher to pour and let go to stop. Hold <strong>Sip</strong> to drink from the top down. <strong>Stir</strong> it to see what it looks like mixed.</p>
       </div>
@@ -120,105 +372,15 @@
         </aside>
       </div>
     </section>
-
-    <!-- 02 DRINK GUIDE -->
+    <!-- 10 DRINK GUIDE -->
     <section class="section" id="drinks">
       <div class="section-head">
-        <p class="eyebrow">02 · Drink Guide</p>
+        <p class="eyebrow">10 · Drink Guide</p>
         <h2>Every drink, to scale</h2>
         <p>Hover or tap a card to watch it get built. Cups are drawn at their real relative sizes.</p>
       </div>
       <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
       <div class="drink-grid" id="drinkGrid"></div>
-    </section>
-
-    <!-- 03 ANATOMY -->
-    <section class="section" id="anatomy">
-      <div class="section-head">
-        <p class="eyebrow">03 · Bean Anatomy</p>
-        <h2>A coffee bean is a seed</h2>
-        <p>Before it’s roasted, it’s wrapped in layers of fruit and husk. Tap any layer to learn what it is, or peel the cherry the way a farm does.</p>
-      </div>
-
-      <div class="anatomy">
-        <div class="anatomy-figure">
-          <div class="anatomy-svg-wrap">
-            <svg id="anatomySvg" viewBox="0 0 400 420" role="img" aria-label="Cross-section of a coffee cherry"></svg>
-            <p class="anatomy-caption" id="anatomyCaption">Tap a layer</p>
-          </div>
-          <div class="process">
-            <div class="process-head">
-              <label for="stageSlider" class="mini-title">Processing</label>
-              <div class="process-btns">
-                <button class="btn btn-sm" id="peelBtn" type="button">Peel next layer →</button>
-                <button class="btn btn-sm" id="peaberryBtn" type="button" aria-pressed="false">Peaberry</button>
-              </div>
-            </div>
-            <input type="range" id="stageSlider" min="0" max="4" step="1" value="0" />
-            <ol class="stage-ticks" id="stageTicks"></ol>
-            <p class="stage-text" id="stageText"></p>
-          </div>
-        </div>
-
-        <div class="anatomy-info">
-          <ol class="layer-list" id="layerList"></ol>
-          <article class="layer-card" id="layerCard" aria-live="polite"></article>
-        </div>
-      </div>
-
-      <div class="facts">
-        <div class="fact"><h3>Peaberry</h3><p>In roughly 5–10% of cherries only one seed develops. It grows round instead of flat. Hit the Peaberry button to see one.</p></div>
-        <div class="fact"><h3>The center cut</h3><p>The S-shaped crease down a roasted bean is where the edges of the seed folded in as it grew.</p></div>
-        <div class="fact"><h3>It’s a fruit</h3><p>Coffee grows on <em>Coffea</em> shrubs, which are in the same plant family as gardenias. The “beans” are the seeds of its cherries.</p></div>
-      </div>
-    </section>
-
-    <!-- 04 ROAST -->
-    <section class="section" id="roast">
-      <div class="section-head">
-        <p class="eyebrow">04 · Roastery</p>
-        <h2>Turn up the heat</h2>
-        <p>Hold the burner to roast a green bean. Listen for <strong>first crack</strong> around 196 °C and <strong>second crack</strong> around 224 °C. Or just drag the thermometer.</p>
-      </div>
-
-      <div class="roaster">
-        <div class="roast-stage">
-          <div class="roast-bean-wrap" id="roastBeanWrap">
-            <svg id="roastBean" viewBox="0 0 240 280" aria-hidden="true">
-              <g id="roastSmoke" class="smoke"></g>
-              <g id="roastBeanBody">
-                <ellipse id="beanFill" cx="120" cy="150" rx="74" ry="102" />
-                <path id="beanCrease" d="M120,52 C96,100 146,150 112,200 C104,214 118,236 120,250" />
-                <ellipse cx="120" cy="150" rx="74" ry="102" fill="url(#beanShine)" id="beanOil" />
-              </g>
-              <g id="roastParticles"></g>
-            </svg>
-            <div class="flames" id="flames" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-          </div>
-          <div class="roast-controls">
-            <button class="btn btn-primary burner" id="heatBtn" type="button">🔥 Hold to roast</button>
-            <button class="btn btn-sm" id="roastReset" type="button">New green bean</button>
-            <button class="btn btn-sm" id="soundBtn" type="button" aria-pressed="true">🔊 Sound on</button>
-          </div>
-        </div>
-
-        <div class="roast-info">
-          <div class="thermo">
-            <label for="tempSlider" class="mini-title">Bean temperature</label>
-            <div class="thermo-row"><strong id="tempNow">20</strong><span>°C</span></div>
-            <input type="range" id="tempSlider" min="20" max="260" step="1" value="20" />
-            <div class="thermo-marks"><span style="--at:.733">1st crack</span><span style="--at:.85">2nd crack</span></div>
-          </div>
-          <h3 class="roast-name" id="roastName">Green</h3>
-          <p class="roast-note" id="roastNote"></p>
-          <div class="flavor-meters" id="flavorMeters"></div>
-          <div class="best-for" id="bestFor"></div>
-          <aside class="myth">
-            <h3>Myth: dark roast has more caffeine</h3>
-            <p>Roasting barely touches caffeine. Dark beans lose more water and get lighter and puffier, so a <em>scoop</em> of light roast has a little more caffeine, while by <em>weight</em> dark roast edges ahead. Either way the difference is tiny. “Strong” tasting isn’t the same as more caffeine.</p>
-          </aside>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -226,6 +388,8 @@
     <p>Brewniverse · recipes and numbers are typical café values, and every shop does it a little differently.</p>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
