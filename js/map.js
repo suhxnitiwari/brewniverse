@@ -2,6 +2,7 @@
 // Uses d3 + topojson (loaded from a CDN in index.html) and the world-atlas country shapes.
 import { PRODUCERS, BRANDS, DOT_ORIGINS } from './world-data.js';
 import { $ } from './util.js';
+import { hasTrip, openTrip } from './passport.js';
 
 const WORLD_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 const W = 960, H = 500;
@@ -148,7 +149,8 @@ export function initMap() {
   const svg = $('mapSvg'), tip = $('mapTip');
   const choose = el => {
     const c = el.closest('.m-grows'), d = el.closest('.m-dot');
-    if (c) pick(byId.get(+c.dataset.id));
+    // the big origins take you on a trip first; the numbers come after
+    if (c) { const id = +c.dataset.id; if (!(hasTrip(id) && openTrip(id))) pick(byId.get(id)); }
     else if (d) { const o = DOT_ORIGINS[+d.dataset.dot]; pick({ ...o, id: -1, dot: true }); }
   };
   svg.addEventListener('click', e => choose(e.target));

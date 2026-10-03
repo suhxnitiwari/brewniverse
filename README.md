@@ -17,13 +17,13 @@ The site follows coffee from the tree to your mug:
 1. **Seed to Cup:** 15 steps from planting to sipping (harvest, float sorting, washed / natural / honey processing, drying, hulling, grading, shipping, roasting, resting, grinding, brewing). A meter tracks how 5 kg of cherries shrinks to about 55 cups.
 2. **Bean Anatomy:** a cross-section of a coffee cherry. Peel the 7 layers the way a farm processes coffee, and flip to a peaberry.
 3. **Beans & Roasts:** how coffee names fit together (species → variety → origin → grade → roast), Arabica, Robusta, Liberica and Excelsa compared (where the names come from, caffeine, price), 21 coffees by origin (Colombian, Kenya AA, Sumatra, Yirgacheffe, Kona…) linked to the map, rare wild species, 20 varieties by family tree, and light / medium / medium-dark / dark roast piles.
-4. **Coffee Map:** a world map of the bean belt, shaded by harvest size. Tap a country for its flavors and harvest season, or pick Starbucks, Dunkin’, Tim Hortons, McCafé, Nespresso or Nescafé to see where they say they buy their beans.
+4. **Coffee Map:** “your coffee has a passport.” Click a big origin (Ethiopia, Colombia, Brazil, Kenya, Guatemala, Yemen, Sumatra, Vietnam) and you travel there first: a full-screen landscape, a passport stamp, tasting notes drifting in the air, then “Explore this origin” for the numbers. Stamps you collect are kept in your browser. The map is shaded by harvest size; tap any grower for its flavors and harvest season, or pick Starbucks, Dunkin’, Tim Hortons, McCafé, Nespresso or Nescafé to see where they say they buy their beans.
 5. **Roastery:** hold the burner to roast a green bean through first and second crack, with live flavor meters.
-6. **Grind Guide:** extra coarse (cold brew) to extra fine (Turkish), with magnified grounds, brew times and the “sour → finer, bitter → coarser” rule.
-7. **Flavor Wheel:** a tasting wheel you read from the middle out. Tap notes to build your own tasting card.
+6. **Grind Guide:** extra coarse (cold brew) to extra fine (Turkish), with magnified grounds and a grinder that growls or whines as you slide. Then the grind game: drag the grounds into the right brewer (“Your espresso machine is judging you.”).
+7. **Flavor Wheel:** tasting treated like perfume. A flavor family blooms outward, the air takes on its colors, notes you pick drift up like scent, and your palette becomes a downloadable tasting card.
 8. **Barista School:** a game behind a dark espresso bar. Pick a drink (espresso, americano, latte, flat white, cappuccino, macchiato, mocha, breve), add syrups, then grind, distribute, tamp, lock in and pull the shot yourself (a coarse grind gushes, a loose puck spurts). Pick whole, 2%, oat, almond, soy or half & half, purge the wand, steam it to the right temperature, tap and swirl, pour it with latte art (heart, tulip, rosetta, swan), and get scored.
 9. **Pour Lab:** a huge cup and a pitcher that follows your cursor. Height matters: pour milk from high up and it dives under the crema; pour low and the foam floats. A “Why did that happen?” note explains each pour.
-10. **Drink Guide:** 18 drinks drawn to scale from their recipes.
+10. **The Menu:** a scrolling fashion editorial. One cup morphs from espresso to macchiato, cortado, flat white, cappuccino, latte, mocha and americano, with the ratios changing inside it. All 18 drinks are still one click away.
 
 It ends on a quiet morning-coffee scene. Photos are from [Unsplash](https://unsplash.com) (credited in the footer and in [`js/photos.js`](js/photos.js)), loaded from Unsplash’s image CDN.
 
@@ -65,7 +65,9 @@ js/grind.js       Grind Guide
 js/wheel.js       Flavor Wheel
 js/barista.js     Barista School
 js/pour.js        Pour Lab
-js/guide.js       Drink Guide + hero cup
+js/menu.js        the editorial drink sequence
+js/passport.js    passport stamps and origin trips
+js/guide.js       the full drink grid
 ```
 
 Recipes and numbers are typical café values and rounded recent averages. Chains don’t publish exact blends, so the brand map shows origins they’ve named publicly.

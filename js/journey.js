@@ -304,7 +304,7 @@ export function initJourney() {
     const b = e.target.closest('[data-at]');
     if (!b) return;
     const span = sec.offsetHeight - innerHeight;
-    scrollTo({ top: sec.offsetTop + span * ((+b.dataset.at + 0.05) / N), behavior: 'smooth' });
+    scrollTo({ top: (sec.getBoundingClientRect().top + scrollY) + span * ((+b.dataset.at + 0.05) / N), behavior: 'smooth' });
   });
   const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
   addEventListener('scroll', onScroll, { passive: true });

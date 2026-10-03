@@ -275,6 +275,27 @@ export const PRODUCERS = [
   { id: 388, name: 'Jamaica',       bags: 0.02,type: 'A', harvest: 'Sep–Mar', notes: 'Mild, sweet, smooth', fact: 'Blue Mountain coffee is famous, rare, and mostly bought by Japan.' },
 ];
 
+// Mini travel features: clicking these on the map opens a full-screen “trip” before any statistics.
+// photo = key in photos.js (missing photos fall back to a painted sky in the origin’s colors)
+export const TRIPS = [
+  { id: 231, key: 'ethiopia', name: 'Ethiopia', kicker: 'The birthplace', notes: ['Jasmine', 'Bergamot', 'Blueberry'],
+    line: 'Coffee still grows wild in the forests here, where it all began.', alt: '1,500–2,200 m', process: 'Washed & natural', sky: ['#3b4a2a', '#a8743f'] },
+  { id: 170, key: 'colombia', name: 'Colombia', kicker: 'The steep green Andes', notes: ['Caramel', 'Red apple', 'Milk chocolate'],
+    line: 'Half a million small farms, two harvests a year, nearly all picked by hand.', alt: '1,200–2,000 m', process: 'Washed', sky: ['#1f4a33', '#c9a24a'] },
+  { id: 76, key: 'brazil', name: 'Brazil', kicker: 'The giant', notes: ['Chocolate', 'Peanut', 'Brown sugar'],
+    line: 'A third of the world’s coffee, from rolling hills wide enough for harvesting machines.', alt: '800–1,300 m', process: 'Natural & pulped natural', sky: ['#3a3a1c', '#d9a35a'] },
+  { id: 404, key: 'kenya', name: 'Kenya', kicker: 'The bright one', notes: ['Blackcurrant', 'Grapefruit', 'Tomato'],
+    line: 'Red volcanic soil and cool highland nights make it taste almost electric.', alt: '1,400–2,000 m', process: 'Washed', sky: ['#5a2418', '#e08a4a'] },
+  { id: 320, key: 'guatemala', name: 'Guatemala', kicker: 'Volcano country', notes: ['Dark chocolate', 'Spice', 'Orange'],
+    line: 'Three volcanoes ring the Antigua valley, and their ash keeps the soil rich.', alt: '1,300–2,000 m', process: 'Washed', sky: ['#2a2f3a', '#b9715a'] },
+  { id: 887, key: 'yemen', name: 'Yemen', kicker: 'Where coffee became a drink', notes: ['Wine', 'Raisin', 'Spice'],
+    line: 'Terraced mountain farms and the old port of Mocha. Sufi monks here were brewing it in the 1400s.', alt: '1,500–2,500 m', process: 'Natural', sky: ['#4a2a1a', '#d8a868'] },
+  { id: 360, key: 'indonesia', name: 'Sumatra', kicker: 'Earth & spice', notes: ['Cedar', 'Earthy', 'Dark cocoa'],
+    line: 'Wet-hulled on misty volcanic islands, which gives it that deep, earthy weight.', alt: '1,100–1,600 m', process: 'Wet-hulled', sky: ['#1c3a33', '#7a8a5a'] },
+  { id: 704, key: 'vietnam', name: 'Vietnam', kicker: 'The Robusta powerhouse', notes: ['Dark chocolate', 'Woody', 'Bold'],
+    line: 'The world’s second-biggest grower, poured slowly through a phin over sweet condensed milk.', alt: '500–1,000 m', process: 'Natural', sky: ['#2a3a2a', '#c48a4a'] },
+];
+
 // Places too small to see at world scale
 export const DOT_ORIGINS = [
   { name: 'Hawaii (Kona)', lon: -155.9, lat: 19.6, fact: 'The only US state that grows coffee commercially (besides Puerto Rico, a US territory). Kona is grown on volcano slopes.' },

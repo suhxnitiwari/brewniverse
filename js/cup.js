@@ -7,8 +7,9 @@ export const VIEWBOX = '0 84 300 238';
 
 let uid = 0;
 
+// cupKey can also be a cup object, so the Drink Guide can morph between sizes
 export function geometry(cupKey) {
-  const cup = CUPS[cupKey];
+  const cup = typeof cupKey === 'string' ? CUPS[cupKey] : cupKey;
   const top = BOTTOM - cup.h;
   const x1 = CX - cup.topW / 2, x2 = CX + cup.topW / 2;
   const b1 = CX - cup.botW / 2, b2 = CX + cup.botW / 2;

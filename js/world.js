@@ -140,7 +140,7 @@ function frame(now) {
       if (d < 180) { const k = 1 - d / 180; tx = dx * k * k * 0.5 * p.z; ty = dy * k * k * 0.5 * p.z; p.glow = Math.max(p.glow, k); }
     }
     for (const R of ripples) {
-      const age = (now - R.t) / 1800, rad = age * Math.max(W, H) * 0.9, dx = p.x - R.x, dy = p.y - R.y, d = Math.hypot(dx, dy) || 1, band = Math.abs(d - rad);
+      const age = Math.max(0, (now - R.t) / 1800), rad = age * Math.max(W, H) * 0.9, dx = p.x - R.x, dy = p.y - R.y, d = Math.hypot(dx, dy) || 1, band = Math.abs(d - rad);
       if (band < 90) { const k = (1 - band / 90) * (1 - age) * 26 * p.z; tx += (dx / d) * k; ty += (dy / d) * k; p.glow = Math.max(p.glow, (1 - age) * (1 - band / 90)); }
     }
     p.ox += (tx - p.ox) * 0.12; p.oy += (ty - p.oy) * 0.12;
@@ -154,7 +154,8 @@ function frame(now) {
 
   // ripples, drawn as soft crema rings
   for (const R of ripples) {
-    const age = (now - R.t) / 1800;
+    // a ripple made after this frame started would have a negative age for one frame
+    const age = Math.max(0, (now - R.t) / 1800);
     g.globalAlpha = 0.35 * (1 - age); g.strokeStyle = '#e6b986'; g.lineWidth = 1.5;
     g.beginPath(); g.arc(R.x, R.y, age * Math.max(W, H) * 0.9, 0, 7); g.stroke();
     g.globalAlpha = 0.2 * (1 - age);
@@ -192,6 +193,12 @@ export const World = {
     if (P.length > n) P.length = n;
   },
   heat(v) { heat = v; },
+  // recolor the current weather (the flavor wheel tints the air with whatever you’re smelling)
+  tint(colors) {
+    const base = BIOMES[biomeName];
+    biome = colors && colors.length ? { ...base, colors } : base;
+    P.forEach((p, i) => setTimeout(() => { p.color = pick(biome.colors); }, (i % 30) * 14));
+  },
   ripple(x, y) { ripples.push({ x, y, t: performance.now() }); },
   pulse() { ripples.push({ x: W / 2, y: H / 2, t: performance.now() }); },
 };

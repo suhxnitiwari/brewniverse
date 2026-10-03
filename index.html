@@ -208,6 +208,10 @@
         <h2>Where coffee grows</h2>
         <p>Coffee only grows in a belt around the equator, between the two tropics. Darker countries grow more. Tap one, or pick a big brand to see where it says its beans come from.</p>
       </div>
+      <div class="passport" aria-label="Your passport">
+        <div class="pp-head"><span class="pp-k">Your passport</span><span class="pp-count" id="passportCount"></span></div>
+        <div class="pp-stamps" id="passportStamps"></div>
+      </div>
       <div class="chips" id="brandChips" role="group" aria-label="Show sourcing for a brand"></div>
       <div class="map-layout">
         <div class="map-wrap" id="mapWrap">
@@ -291,6 +295,18 @@
           <aside class="myth"><h3>Dial it in</h3><p>Tastes <b>sour</b> or thin? Grind <b>finer</b>. Tastes <b>bitter</b> or harsh? Grind <b>coarser</b>. That one rule fixes most bad coffee.</p></aside>
         </div>
       </div>
+
+      <div class="gm" id="gm">
+        <p class="gm-k">The grind game</p>
+        <h3 class="gm-title">Drag the grounds into the right brewer.</h3>
+        <div class="gm-row">
+          <button class="gm-pile" id="gmPile" type="button" aria-describedby="gmHelp"><svg viewBox="0 0 120 80" id="gmPileArt" aria-hidden="true"></svg><span id="gmPileName"></span></button>
+          <div class="gm-brewers" id="gmBrewers" role="group" aria-label="Brewers"></div>
+        </div>
+        <p class="gm-help" id="gmHelp">Set the grind with the slider above, then drag (or tap a brewer).</p>
+        <p class="gm-say" id="gmSay" aria-live="polite"></p>
+        <p class="gm-score" id="gmScore"></p>
+      </div>
     </section>
     <section class="soundboard" id="soundboard" data-biome="sound" data-place="The sound">
       <p class="sb-kicker">Interlude</p>
@@ -306,17 +322,22 @@
     <!-- 07 FLAVOR WHEEL -->
     <section class="section" id="flavor" data-biome="aroma" data-place="The nose">
       <div class="section-head">
-        <h2>Name what you taste</h2>
-        <p>Tasters use a wheel like this to put words to flavors. Start in the middle with something broad, then work your way out.</p>
+        <h2>Taste it like perfume</h2>
+        <p>Start in the middle with something broad, then follow your nose outward. Tap the notes you catch to build your palette.</p>
       </div>
       <div class="wheel">
-        <div class="wheel-wrap"><svg id="wheelSvg" viewBox="-380 -380 760 760" role="group" aria-label="Coffee flavor wheel"></svg></div>
+        <div class="wheel-wrap" id="wheelWrap"><div class="wheel-aura" aria-hidden="true"></div><svg id="wheelSvg" viewBox="-380 -380 760 760" role="group" aria-label="Coffee flavor wheel"></svg></div>
         <aside class="wheel-side">
           <div class="layer-card" id="wheelInfo" aria-live="polite"></div>
           <div class="my-notes">
-            <div class="process-head"><h3 class="mini-title">My tasting notes</h3><button class="link" id="clearNotes" type="button" hidden>Clear</button></div>
+            <div class="process-head"><h3 class="mini-title">My coffee palette</h3><button class="link" id="clearNotes" type="button" hidden>Clear</button></div>
+            <div class="palette" id="palette" aria-hidden="true"></div>
             <div class="chips" id="myNotes"></div>
             <p class="notes-line" id="notesLine"></p>
+            <div class="card-maker" id="cardMaker" hidden>
+              <label class="field"><span>Name this coffee</span><input id="coffeeName" type="text" maxlength="40" placeholder="Ethiopia Guji, Sunday morning…" /></label>
+              <button class="btn btn-primary" id="makeCard" type="button">Make my tasting card</button>
+            </div>
           </div>
         </aside>
       </div>
@@ -428,13 +449,31 @@
       <div class="cc-type"><p class="cc-kicker">Choose it</p><p class="cc-title">The<br>menu</p><p class="cc-line">Same espresso. Different drink.</p></div>
     </section>
     <!-- 10 DRINK GUIDE -->
-    <section class="section" id="drinks" data-biome="steam" data-place="The menu">
-      <div class="section-head">
-        <h2>Every drink, to scale</h2>
-        <p>Hover or tap a card to watch it get built. Cups are drawn at their real relative sizes.</p>
+    <section class="dg" id="drinks" data-biome="steam" data-place="The menu">
+      <div class="dg-story" id="dgStory">
+        <div class="dg-pin">
+          <div class="dg-glow" id="dgGlow" aria-hidden="true"></div>
+          <p class="dg-k">The menu · <span id="dgNum">01</span></p>
+          <div class="dg-cup" id="dgCup" role="img" aria-label="The drink, drawn to scale"></div>
+          <div class="dg-copy" id="dgCopy">
+            <h2 class="dg-name" id="dgName"></h2>
+            <p class="dg-meta" id="dgMeta"></p>
+            <p class="dg-line" id="dgLine"></p>
+            <p class="dg-ratio" id="dgRatio"></p>
+            <button class="dg-pour" id="dgPour" type="button">Pour it yourself →</button>
+          </div>
+          <ol class="dg-dots" id="dgDots" aria-label="Drinks"></ol>
+        </div>
       </div>
-      <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
-      <div class="drink-grid" id="drinkGrid"></div>
+      <div class="dg-all-wrap">
+        <details class="why dg-all">
+          <summary>See all 18 drinks <span>+</span></summary>
+          <div class="dg-all-body">
+            <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
+            <div class="drink-grid" id="drinkGrid"></div>
+          </div>
+        </details>
+      </div>
     </section>
     <section class="morning" id="morning" data-biome="dust" data-place="Your morning">
       <div class="morning-photo" data-photo="morning" role="img" aria-label="A steaming mug on a wooden table by a sunny window"></div>
@@ -451,6 +490,34 @@
     <p>Brewniverse · recipes and numbers are typical café values, and every shop does it a little differently.</p>
     <p class="credits">Photos from <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> by <span id="photoCredits"></span>.</p>
   </footer>
+
+  <dialog class="trip" id="trip" aria-label="Origin">
+    <div class="trip-photo" id="tripPhoto"></div>
+    <div class="trip-shade"></div>
+    <div class="trip-notes" id="tripNotes" aria-hidden="true"></div>
+    <div class="trip-stamp" id="tripStamp"></div>
+    <div class="trip-type">
+      <p class="trip-kicker" id="tripKicker"></p>
+      <h2 class="trip-name" id="tripName"></h2>
+      <p class="trip-line" id="tripLine"></p>
+      <dl class="trip-facts" id="tripFacts"></dl>
+      <div class="trip-btns">
+        <button class="btn trip-explore" id="tripExplore" type="button">Explore this origin →</button>
+        <button class="btn btn-ghost" id="tripNext" type="button">Next stop →</button>
+      </div>
+    </div>
+    <button class="trip-close" id="tripClose" type="button" aria-label="Close">×</button>
+    <p class="trip-credit" id="tripCredit"></p>
+  </dialog>
+
+  <dialog class="card-dialog" id="cardDialog">
+    <img id="cardImg" alt="Your tasting card" />
+    <div class="card-actions">
+      <a class="btn btn-primary" id="cardDownload" download="my-coffee-palette.png">Download</a>
+      <button class="btn" id="cardShare" type="button" hidden>Share</button>
+      <button class="btn btn-ghost" id="cardClose" type="button">Close</button>
+    </div>
+  </dialog>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>

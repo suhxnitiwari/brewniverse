@@ -15,6 +15,15 @@ export const PHOTOS = {
   latte:   { id: '1559001724-fbad036dbc9e', by: 'Phil Desforges', page: 'cafe-latte-Nw8wbiDE3gU' },
   morning: { id: '1662038271111-5b1c0b4157e8', by: 'Aimee Giles', page: 'steaming-mug-on-wooden-table-u1QfqxhsrXQ' },
   steam:   { id: '1596098823457-74e360fcd023', by: 'tabitha turner', page: 'brown-ceramic-cup-with-white-smoke-PSqT-lQAt7A' },
+  // origins for the passport trips (locations checked against each photo’s Unsplash tag)
+  ethiopia:  { id: '1572888195250-3037a59d3578', by: 'Erik Hathaway', page: 'aerial-photography-of-mountain-eRFC0_U0hGE' },
+  colombia:  { id: '1457414254764-c87b209f5249', by: 'Julian Andres Carmona Serrato', page: 'cloudy-sky-over-mountain-SkIy9L2LjnI' },
+  brazil:    { id: '1633437805600-2c58bf56663c', by: 'Dhan Sugui', page: 'a-lush-green-valley-surrounded-by-mountains-AgPj0maIEEs' },
+  kenya:     { id: '1740344109636-0e7cbdde0f48', by: 'Tourite Safaris', page: 'a-view-of-a-field-with-a-mountain-in-the-background-bV9pyy4ksUk' },
+  guatemala: { id: '1624397741918-19d0a95fa902', by: 'Ferrando Elias', page: 'cars-parked-on-side-of-road-near-building-during-night-time-LS_CULmNM_c' },
+  yemen:     { id: '1656416584402-b720e0d786dc', by: 'asamw', page: 'a-city-with-many-buildings-vNTrQ49rByg' },
+  indonesia: { id: '1569081562679-6d71c00aab86', by: 'Marc St', page: 'aerial-photo-of-mountains-LU1dhnTY8ZU' },
+  vietnam:   { id: '1678099006439-dba9e4d3f9f5', by: 'Pete Walls', page: 'a-grassy-field-with-trees-and-mountains-in-the-background-Fl3bY0hWXv4' },
 };
 
 // Pick a width that matches the screen so phones don’t download huge files.
