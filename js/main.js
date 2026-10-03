@@ -1,3 +1,4 @@
+import { initWorld } from './world.js';
 import { initSite } from './site.js';
 import { initJourney } from './journey.js';
 import { initAnatomy } from './anatomy.js';
@@ -10,6 +11,7 @@ import { initBarista } from './barista.js';
 import { initPour } from './pour.js';
 import { initGuide } from './guide.js';
 
+initWorld();
 initSite();
 initJourney();
 initAnatomy();

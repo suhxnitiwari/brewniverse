@@ -6,6 +6,8 @@ An interactive coffee guide. No frameworks, no build step: just HTML, CSS and Ja
 
 ## What you can do
 
+It’s built to feel like a little world you step into. You arrive through a gate (with sound or quietly), and a living layer of particles floats over the whole site and changes its weather as you travel: pollen on the farm, water at the mill, sea spray in shipping, embers at the roast (hotter as you heat), falling grounds at the grinder, crema motes at the espresso, rising milk bubbles, aroma petals at the flavor wheel, and golden dust in the morning sun. Particles lean toward your cursor, a warm light follows it, and clicking empty space sends a ripple through everything. A small readout in the corner tells you where you are and how close you are to your cup.
+
 It opens like a film and gets more hands-on as you scroll. Turn **Sound** on in the top corner: every chapter has its own ambient bed (birds on the farm, water at the mill, the roaster, café murmur), and grinding, steaming, pulling and pouring all make their own sounds. Every sound is synthesized live with the Web Audio API, with no audio files.
 
 The site follows coffee from the tree to your mug:
@@ -50,8 +52,9 @@ js/data.js        drinks, ingredients, cups, anatomy, roast data
 js/world-data.js  journey, species, roast levels, origins + brands, grinds, flavor wheel
 js/util.js        press-and-hold, animation ticker, small helpers
 js/sound.js       the sound engine: ambient beds, effects, held loops
+js/world.js       the living particle world, its weather, cursor light and ripples
 js/photos.js      Unsplash photos + credits
-js/site.js        nav, chapter menu, sound toggle, soundboard, reveals
+js/site.js        arrival gate, nav, chapter menu, sound toggle, weather + trip readout, soundboard
 js/cup.js         cup drawing + ratio / matching math
 js/journey.js     the scroll-driven bean journey
 js/anatomy.js     Bean Anatomy

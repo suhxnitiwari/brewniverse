@@ -6,21 +6,23 @@ import { ROAST_COLORS } from './data.js';
 import { photoUrl } from './photos.js';
 import { Sound } from './sound.js';
 import { $, seeded, clamp, lerp } from './util.js';
+import { World } from './world.js';
+import { setPlace, lockPlace } from './site.js';
 
 const STAGES = [
-  { ch: '01', name: 'Grow',    line: 'Coffee is<br>a fruit.', note: 'Yes. Really.', photo: 'farm', bed: 'farm', why: ['plant', 'flower'] },
-  { ch: '01', name: 'Grow',    line: 'Six to nine months<br>to turn red.', note: 'Green, then yellow, then red.', photo: 'cherry', bed: 'farm', why: ['ripen'] },
-  { ch: '02', name: 'Pick',    line: 'Picked by hand.<br>One by one.', note: 'A good picker fills 45–90 kg a day.', photo: 'pick', bed: 'farm', why: ['harvest', 'separate'] },
-  { ch: '03', name: 'Process', line: 'Surprise.<br>That’s your coffee bean.', note: 'Every cherry hides two seeds.', photo: 'dry', bed: 'water', why: ['process'], more: '#anatomy' },
-  { ch: '03', name: 'Process', line: 'Weeks<br>in the sun.', note: 'Raked by hand, down to 11% water.', photo: 'dry', bed: 'wind', why: ['dry', 'hull'] },
-  { ch: '03', name: 'Process', line: 'Green<br>coffee.', note: 'Smells like hay. Hard as a pebble.', photo: 'green', bed: 'wind', why: ['sort'] },
-  { ch: '04', name: 'Ship',    line: 'Your coffee<br>has a passport.', note: '60 kg sacks. Weeks at sea.', photo: 'sacks', bed: 'sea', why: ['ship'], more: '#coffeemap' },
-  { ch: '05', name: 'Roast',   line: '', note: '', photo: 'roaster', bed: 'roaster', why: ['roast'], roast: true, more: '#roast' },
-  { ch: '05', name: 'Roast',   line: 'Roasting is<br>controlled destruction.', note: 'Over 800 aroma compounds, made in minutes.', photo: 'roasted', bed: 'roaster', why: ['rest'] },
-  { ch: '06', name: 'Grind',   line: '10,000×<br>more surface.', note: 'Ground seconds before brewing.', photo: 'grind', bed: 'none', why: ['grind'], more: '#grind' },
-  { ch: '07', name: 'Brew',    line: 'Nine bars<br>of pressure later…', note: '18 g in. 36 g out. 28 seconds.', photo: 'hero', bed: 'cafe', why: ['brew'] },
-  { ch: '08', name: 'Steam',   line: 'Then comes<br>milk.', note: 'Silky, glossy, never scalded.', photo: 'milk', bed: 'cafe', why: [] },
-  { ch: '09', name: 'Pour',    line: 'Finally:<br>yours.', note: 'Now make one yourself.', photo: 'latte', bed: 'cafe', why: ['sip'], more: '#barista' },
+  { biome: 'pollen', ch: '01', name: 'Grow',    line: 'Coffee is<br>a fruit.', note: 'Yes. Really.', photo: 'farm', bed: 'farm', why: ['plant', 'flower'] },
+  { biome: 'pollen', ch: '01', name: 'Grow',    line: 'Six to nine months<br>to turn red.', note: 'Green, then yellow, then red.', photo: 'cherry', bed: 'farm', why: ['ripen'] },
+  { biome: 'pollen', ch: '02', name: 'Pick',    line: 'Picked by hand.<br>One by one.', note: 'A good picker fills 45–90 kg a day.', photo: 'pick', bed: 'farm', why: ['harvest', 'separate'] },
+  { biome: 'water', ch: '03', name: 'Process', line: 'Surprise.<br>That’s your coffee bean.', note: 'Every cherry hides two seeds.', photo: 'dry', bed: 'water', why: ['process'], more: '#anatomy' },
+  { biome: 'dust', ch: '03', name: 'Process', line: 'Weeks<br>in the sun.', note: 'Raked by hand, down to 11% water.', photo: 'dry', bed: 'wind', why: ['dry', 'hull'] },
+  { biome: 'dust', ch: '03', name: 'Process', line: 'Green<br>coffee.', note: 'Smells like hay. Hard as a pebble.', photo: 'green', bed: 'wind', why: ['sort'] },
+  { biome: 'sea', ch: '04', name: 'Ship',    line: 'Your coffee<br>has a passport.', note: '60 kg sacks. Weeks at sea.', photo: 'sacks', bed: 'sea', why: ['ship'], more: '#coffeemap' },
+  { biome: 'embers', ch: '05', name: 'Roast',   line: '', note: '', photo: 'roaster', bed: 'roaster', why: ['roast'], roast: true, more: '#roast' },
+  { biome: 'embers', ch: '05', name: 'Roast',   line: 'Roasting is<br>controlled destruction.', note: 'Over 800 aroma compounds, made in minutes.', photo: 'roasted', bed: 'roaster', why: ['rest'] },
+  { biome: 'grounds', ch: '06', name: 'Grind',   line: '10,000×<br>more surface.', note: 'Ground seconds before brewing.', photo: 'grind', bed: 'none', why: ['grind'], more: '#grind' },
+  { biome: 'crema', ch: '07', name: 'Brew',    line: 'Nine bars<br>of pressure later…', note: '18 g in. 36 g out. 28 seconds.', photo: 'hero', bed: 'cafe', why: ['brew'] },
+  { biome: 'bubbles', ch: '08', name: 'Steam',   line: 'Then comes<br>milk.', note: 'Silky, glossy, never scalded.', photo: 'milk', bed: 'cafe', why: [] },
+  { biome: 'steam', ch: '09', name: 'Pour',    line: 'Finally:<br>yours.', note: 'Now make one yourself.', photo: 'latte', bed: 'cafe', why: ['sip'], more: '#barista' },
 ];
 const N = STAGES.length;
 const CHAPTERS = [...new Map(STAGES.map((s, i) => [s.ch, { ch: s.ch, name: s.name, at: i }])).values()];
@@ -253,7 +255,6 @@ function setStage(i) {
   $('storyWhy').innerHTML = whyHTML(st);
   $('story').classList.toggle('is-roast', !!st.roast);
   $('storyRail').querySelectorAll('li').forEach(li => li.classList.toggle('on', li.dataset.ch === st.ch));
-  Sound.ambience(st.bed);
   if (i === 2 || i === 6) Sound.sfx('drop');
 }
 
@@ -266,8 +267,14 @@ function update() {
   const u = p * N;
   const i = Math.floor(u);
   const inView = r.top < innerHeight && r.bottom > 0;
-  if (!inView) { if (current !== -1 && (r.bottom <= 0 || r.top >= innerHeight)) Sound.ambience('none'); return; }
+  if (!inView) { update.away = true; return; }   // the next section’s observer takes over the sound and weather
+  update.away = false;
   if (i !== current) setStage(i);
+  // while the story fills the middle of the screen, it owns the weather, the sound and the label
+  if (r.top <= innerHeight / 2 && r.bottom >= innerHeight / 2) {
+    const st = STAGES[i];
+    World.set(st.biome); Sound.ambience(st.bed); lockPlace('story'); setPlace(`${st.ch} · ${st.name}`, 'story');
+  }
   if (Math.abs(u - lastU) < 0.001) return;
   lastU = u;
   $('storyObj').querySelector('#jStage').innerHTML = frame(u);
@@ -279,6 +286,7 @@ function update() {
   $('storyProgress').style.transform = `scaleY(${p})`;
   if (STAGES[i].roast) {
     const temp = Math.round(roastTemp(t));
+    World.heat(seg(t, 0.1, 0.95));
     $('storyLine').innerHTML = `${temp}°C`;
     $('storyNote').textContent = temp >= 224 ? 'Second crack' : temp >= 196 ? 'First crack' : temp >= 150 ? 'Browning' : 'Drying';
     const crack = temp >= 224 ? 2 : temp >= 196 ? 1 : 0;

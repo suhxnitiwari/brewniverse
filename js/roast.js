@@ -1,6 +1,7 @@
 // Roast: hold the burner, watch the bean change, hear it crack.
 import { ROAST_COLORS, ROAST_STAGES, FIRST_CRACK, SECOND_CRACK } from './data.js';
 import { Sound } from './sound.js';
+import { World } from './world.js';
 
 const $ = id => document.getElementById(id);
 const MIN = 20, MAX = 260;
@@ -62,6 +63,7 @@ function crackBurst(kind) {
   const flash = $('roastFlash');
   flash.innerHTML = first ? `<b>Crack.</b><span>First crack · ${FIRST_CRACK}°C</span>` : `<b>Crack.</b><span>Second crack · ${SECOND_CRACK}°C</span>`;
   flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
+  const r = $('roastBeanWrap').getBoundingClientRect(); World.ripple(r.left + r.width / 2, r.top + r.height / 2);
 }
 
 function spark(big) {
@@ -149,6 +151,7 @@ function render() {
 
   $('tempNow').textContent = Math.round(t);
   $('roast').style.setProperty('--heat', heatLevel().toFixed(3));
+  World.heat(heatLevel());
   $('roastName').textContent = stage.name === 'Green' || stage.name === 'Drying' || stage.name === 'Browning' || stage.name === 'Burnt'
     ? stage.name : `${stage.name} roast`;
   $('roastNote').textContent = stage.note;

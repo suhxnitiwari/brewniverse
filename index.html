@@ -8,10 +8,28 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body class="gated">
+  <canvas id="world" aria-hidden="true"></canvas>
+
+  <div class="gate" id="gate" role="dialog" aria-label="Welcome">
+    <p class="gate-k">A world made of coffee</p>
+    <p class="gate-title">Brewniverse</p>
+    <p class="gate-line">Best with sound. Headphones, even better.</p>
+    <div class="gate-btns">
+      <button class="gate-btn solid" id="enterSound" type="button">Enter with sound</button>
+      <button class="gate-btn" id="enterQuiet" type="button">Enter quietly</button>
+    </div>
+    <p class="gate-tip"><span class="for-mouse">Move your cursor. Click anywhere empty.</span><span class="for-touch">Tap anywhere empty.</span></p>
+  </div>
+
+  <div class="hud" id="hud" aria-hidden="true">
+    <span class="hud-place" id="hudPlace">Arrival</span>
+    <span class="hud-bar"><i id="hudBar"></i></span>
+    <span class="hud-pct" id="hudPct">0% to your cup</span>
+  </div>
   <!-- shared SVG patterns -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -54,7 +72,7 @@
     </ol>
   </div>
 
-  <header class="hero" id="top">
+  <header class="hero" id="top" data-biome="steam" data-place="Arrival">
     <div class="hero-photo" data-photo="hero" role="img" aria-label="Espresso pouring from a portafilter"></div>
     <div class="hero-shade"></div>
     <svg class="hero-steam" viewBox="0 0 200 300" aria-hidden="true">
@@ -68,7 +86,7 @@
   </header>
 
   <main>
-    <section class="breath" aria-label="Interlude">
+    <section class="breath" aria-label="Interlude" data-biome="steam" data-place="Before the cup">
       <p class="breath-line">Before coffee was a drink,<br /><em>it was a cherry.</em></p>
     </section>
 
@@ -90,12 +108,12 @@
       </div>
     </section>
 
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="pollen" data-place="Inside the cherry">
       <div class="cc-photo" data-photo="cherry"></div>
       <div class="cc-type"><p class="cc-kicker">Peel it</p><p class="cc-title">Inside<br>the cherry</p><p class="cc-line">Two seeds, six layers, one surprise.</p></div>
     </section>
     <!-- 02 ANATOMY -->
-    <section class="section" id="anatomy">
+    <section class="section" id="anatomy" data-biome="pollen" data-place="Inside the cherry">
       <div class="section-head">
         <h2>A coffee bean is a seed</h2>
         <p>Before it’s roasted, it’s wrapped in layers of fruit and husk. Tap any layer to learn what it is, or peel the cherry the way a farm does.</p>
@@ -133,12 +151,12 @@
         <div class="fact"><h3>It’s a fruit</h3><p>Coffee grows on <em>Coffea</em> shrubs, which are in the same plant family as gardenias. The “beans” are the seeds of its cherries.</p></div>
       </div>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="beans" data-place="The beans">
       <div class="cc-photo" data-photo="roasted"></div>
       <div class="cc-type"><p class="cc-kicker">Compare them</p><p class="cc-title">The<br>beans</p><p class="cc-line">Arabica, Robusta, and everything in between.</p></div>
     </section>
     <!-- 03 BEANS & ROASTS -->
-    <section class="section" id="beans">
+    <section class="section" id="beans" data-biome="beans" data-place="The beans">
       <div class="section-head">
         <h2>Not all beans are the same</h2>
         <p>There are over 130 species of coffee plant, but nearly everything you drink is one of two: Arabica or Robusta. Tap a bean to compare them and see where the names come from.</p>
@@ -180,12 +198,12 @@
         <article class="sp-card roast-card" id="roastCard" aria-live="polite"></article>
       </div>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="sea" data-place="The passport">
       <div class="cc-photo" data-photo="sacks"></div>
       <div class="cc-type"><p class="cc-kicker">Follow it</p><p class="cc-title">Your coffee<br>has a passport.</p><p class="cc-line">Every cup begins somewhere near the equator.</p></div>
     </section>
     <!-- 04 COFFEE MAP -->
-    <section class="section" id="coffeemap">
+    <section class="section" id="coffeemap" data-biome="sea" data-place="The passport">
       <div class="section-head">
         <h2>Where coffee grows</h2>
         <p>Coffee only grows in a belt around the equator, between the two tropics. Darker countries grow more. Tap one, or pick a big brand to see where it says its beans come from.</p>
@@ -201,12 +219,12 @@
         <aside class="map-info" id="mapInfo" aria-live="polite"></aside>
       </div>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="embers" data-place="The fire">
       <div class="cc-photo" data-photo="roaster"></div>
       <div class="cc-type"><p class="cc-kicker">Roast it</p><p class="cc-title">The<br>fire</p><p class="cc-line">Hold the heat. Listen for the crack.</p></div>
     </section>
     <!-- 05 ROAST -->
-    <section class="roastery" id="roast">
+    <section class="roastery" id="roast" data-biome="embers" data-place="The fire">
       <div class="roast-glow" aria-hidden="true"></div>
       <div class="roast-flash" id="roastFlash" aria-live="polite"></div>
       <div class="roast-scene">
@@ -245,12 +263,12 @@
         </div>
       </details>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="grounds" data-place="The grind">
       <div class="cc-photo" data-photo="grind"></div>
       <div class="cc-type"><p class="cc-kicker">Grind it</p><p class="cc-title">The<br>grind</p><p class="cc-line">From boulders to flour.</p></div>
     </section>
     <!-- 06 GRIND GUIDE -->
-    <section class="section" id="grind">
+    <section class="section" id="grind" data-biome="grounds" data-place="The grind">
       <div class="section-head">
         <h2>Size matters</h2>
         <p>The faster the brew, the finer the grind. Smaller pieces mean more surface for water to pull flavor from. Slide it or pick your brewer.</p>
@@ -274,19 +292,19 @@
         </div>
       </div>
     </section>
-    <section class="soundboard" id="soundboard">
+    <section class="soundboard" id="soundboard" data-biome="sound" data-place="The sound">
       <p class="sb-kicker">Interlude</p>
       <h2 class="sb-title">The sound<br /><em>of coffee.</em></h2>
       <div class="sb-grid" id="soundBoard"></div>
       <p class="sb-note" id="sbNote">Turn the sound on, then tap.</p>
     </section>
 
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="aroma" data-place="The nose">
       <div class="cc-photo" data-photo="steam"></div>
       <div class="cc-type"><p class="cc-kicker">Taste it</p><p class="cc-title">The<br>nose</p><p class="cc-line">Taste it the way you’d smell a perfume.</p></div>
     </section>
     <!-- 07 FLAVOR WHEEL -->
-    <section class="section" id="flavor">
+    <section class="section" id="flavor" data-biome="aroma" data-place="The nose">
       <div class="section-head">
         <h2>Name what you taste</h2>
         <p>Tasters use a wheel like this to put words to flavors. Start in the middle with something broad, then work your way out.</p>
@@ -303,12 +321,12 @@
         </aside>
       </div>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="steam" data-place="Behind the bar">
       <div class="cc-photo" data-photo="hero"></div>
       <div class="cc-type"><p class="cc-kicker">Make it</p><p class="cc-title">Behind<br>the bar</p><p class="cc-line">You’re the barista now.</p></div>
     </section>
     <!-- 08 BARISTA SCHOOL -->
-    <section class="section bar-dark" id="barista">
+    <section class="section bar-dark" id="barista" data-biome="steam" data-place="Behind the bar">
       <div class="section-head">
         <h2>Make it yourself</h2>
         <p>A guided, step-by-step build. Grind, tamp, pull the shot, pick your milk and flavor, steam it, and pour your own latte art. You do every step.</p>
@@ -328,12 +346,12 @@
         </div>
       </div>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="crema" data-place="The pour">
       <div class="cc-photo" data-photo="milk"></div>
       <div class="cc-type"><p class="cc-kicker">Pour it</p><p class="cc-title">The<br>pour</p><p class="cc-line">Height, speed, and a little physics.</p></div>
     </section>
     <!-- 09 POUR LAB -->
-    <section class="pourlab" id="pour">
+    <section class="pourlab" id="pour" data-biome="crema" data-place="The pour">
       <div class="pl-head">
         <h2 class="pl-title">Pour it<em>yourself.</em></h2>
         <p class="pl-hint">Pick a pitcher. Hold it over the cup. Press and hold to pour.</p>
@@ -405,12 +423,12 @@
         </div>
       </details>
     </section>
-    <section class="chapter-card" aria-hidden="true">
+    <section class="chapter-card" aria-hidden="true" data-biome="steam" data-place="The menu">
       <div class="cc-photo" data-photo="latte"></div>
       <div class="cc-type"><p class="cc-kicker">Choose it</p><p class="cc-title">The<br>menu</p><p class="cc-line">Same espresso. Different drink.</p></div>
     </section>
     <!-- 10 DRINK GUIDE -->
-    <section class="section" id="drinks">
+    <section class="section" id="drinks" data-biome="steam" data-place="The menu">
       <div class="section-head">
         <h2>Every drink, to scale</h2>
         <p>Hover or tap a card to watch it get built. Cups are drawn at their real relative sizes.</p>
@@ -418,7 +436,7 @@
       <div class="chips" id="drinkFilters" role="group" aria-label="Filter drinks"></div>
       <div class="drink-grid" id="drinkGrid"></div>
     </section>
-    <section class="morning" id="morning">
+    <section class="morning" id="morning" data-biome="dust" data-place="Your morning">
       <div class="morning-photo" data-photo="morning" role="img" aria-label="A steaming mug on a wooden table by a sunny window"></div>
       <div class="morning-shade"></div>
       <div class="morning-type">

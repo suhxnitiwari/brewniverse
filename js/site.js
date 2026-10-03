@@ -3,6 +3,7 @@
 import { Sound } from './sound.js';
 import { applyPhotos, creditsHTML } from './photos.js';
 import { $ } from './util.js';
+import { World } from './world.js';
 
 const BOARD = [
   { id: 'pick',  label: 'Pick',  play: () => { Sound.sfx('pick'); setTimeout(() => Sound.sfx('drop'), 180); } },
@@ -70,6 +71,7 @@ function initBoard() {
     if (!b) return;
     if (!Sound.on) Sound.toggle(true);
     BOARD.find(x => x.id === b.dataset.sb).play();
+    const r = b.getBoundingClientRect(); World.ripple(r.left + r.width / 2, r.top + r.height / 2);
     b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
   });
 }
@@ -82,12 +84,67 @@ function initBeds() {
   Object.keys(BEDS).forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
 }
 
+// The little status line in the corner: where you are on the trip, and how close the cup is.
+let placeLock = null;
+export function setPlace(label, owner = null) {
+  if (placeLock && owner !== placeLock) return;
+  $('hudPlace').textContent = label;
+}
+export function lockPlace(owner) { placeLock = owner; }
+
+function initWeather() {
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      World.set(e.target.dataset.biome);
+      lockPlace(null);
+      setPlace(e.target.dataset.place);
+    }
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  document.querySelectorAll('[data-biome]').forEach(el => io.observe(el));
+  let raf = 0;
+  const progress = () => {
+    raf = 0;
+    const p = Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight));
+    $('hudBar').style.transform = `scaleX(${p})`;
+    $('hudPct').textContent = p > 0.985 ? 'Your cup' : `${Math.round(p * 100)}% to your cup`;
+  };
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(progress); }, { passive: true });
+  progress();
+}
+
+// The arrival: the world is already moving behind the gate; you choose how to come in.
+function initGate() {
+  const gate = $('gate');
+  let seen = false;
+  try { seen = sessionStorage.getItem('brew-entered') === '1'; } catch {}
+  const open = (withSound, e) => {
+    try { sessionStorage.setItem('brew-entered', '1'); } catch {}
+    if (withSound != null) Sound.toggle(withSound);
+    if (withSound) Sound.sfx('bloom');
+    const r = e?.target?.getBoundingClientRect?.();
+    World.ripple(r ? r.left + r.width / 2 : innerWidth / 2, r ? r.top + r.height / 2 : innerHeight / 2);
+    gate.classList.add('open');
+    document.body.classList.remove('gated');
+    setTimeout(() => (gate.hidden = true), 1400);
+  };
+  if (seen) { gate.hidden = true; document.body.classList.remove('gated'); return; }
+  // every arrival starts at the beginning
+  try { history.scrollRestoration = 'manual'; } catch {}
+  scrollTo(0, 0);
+  $('enterSound').addEventListener('click', e => open(true, e));
+  $('enterQuiet').addEventListener('click', e => open(false, e));
+  addEventListener('keydown', function esc(e) { if (e.key === 'Escape' && !gate.hidden) { open(null); removeEventListener('keydown', esc); } });
+  $('enterSound').focus({ preventScroll: true });
+}
+
 function initReveal() {
   const io = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: 0.25 });
   document.querySelectorAll('.chapter-card, .breath, .morning, .soundboard').forEach(el => io.observe(el));
 }
 
 export function initSite() {
+  initGate();
   applyPhotos();
   $('photoCredits').innerHTML = creditsHTML();
   initSoundToggle();
@@ -95,6 +152,7 @@ export function initSite() {
   initNav();
   initBoard();
   initBeds();
+  initWeather();
   initReveal();
   // a soft tick on every button press, when sound is on
   document.addEventListener('click', e => { if (e.target.closest('.btn, .chip, .seg button, .b-drink, .b-milk')) Sound.sfx('click'); });

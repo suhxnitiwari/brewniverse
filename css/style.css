@@ -1,22 +1,24 @@
 :root {
-  --bg: #f6efe4;
-  --card: #fffaf2;
-  --ink: #2a1a12;
-  --muted: #7b6556;
-  --line: #e5d6c3;
-  --accent: #b5532a;
-  --accent-ink: #fff;
-  --soft: #efe3d2;
-  --good: #4f7d4a;
-  --shadow: 0 1px 2px rgb(60 30 10 / .06), 0 8px 24px rgb(60 30 10 / .08);
+  /* the whole site is one night-time coffee world; panels are glass floating over it */
+  --bg: #120b07;
+  --card: rgb(36 26 18 / .78);
+  --ink: #f4e8da;
+  --muted: #b9a48f;
+  --line: rgb(255 240 220 / .12);
+  --accent: #e3895a;
+  --accent-ink: #1b120c;
+  --soft: rgb(255 240 220 / .07);
+  --good: #8cc47f;
+  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 18px 40px rgb(0 0 0 / .35);
   --radius: 18px;
   --serif: 'Fraunces', Georgia, serif;
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
   --display: 'Archivo', 'Inter', system-ui, sans-serif;
   --ital: 'Instrument Serif', 'Fraunces', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
   --night: #120b07;
   --cream: #f6efe4;
-  color-scheme: light;
+  color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -35,7 +37,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 64px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: radial-gradient(ellipse 120% 80% at 50% 0%, #22150d, #120b07 60%) fixed, #120b07; color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
 h1, h2, h3 { font-family: var(--serif); line-height: 1.1; margin: 0; letter-spacing: -.01em; }
 p { margin: 0; }
 button { font: inherit; color: inherit; }
@@ -727,6 +729,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   .nav-btn { padding: .4em .8em; font-size: .7rem; }
 }
 @media (max-width: 520px) {
+  .hud-bar { display: none; }
   .brand { font-size: .82rem; letter-spacing: .08em; }
   .sound-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .nav-right { gap: 6px; }
@@ -792,6 +795,40 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .pl-numbers summary { color: var(--ink); }
 .pl-numbers .why-body { background: var(--card); color: var(--ink); border: 1px solid var(--line); max-height: none; gap: 18px; }
 @media (hover: none) { .pl-stage { cursor: auto; } }
+
+/* the world: particles float over everything, never catching clicks */
+#world { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+.gated #world { z-index: 60; }
+main, .hero, .footer { position: relative; }
+.card-glass, .layer-card, .sp-card, .map-info, .j-card, .readout, .b-panel, .origin, .drink-card, .varieties li, .process, .anatomy-svg-wrap, .name-ladder, .pl-why { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.section-head h2 { font: 900 clamp(2.2rem, 5.5vw, 4.2rem)/.92 var(--display); font-stretch: 112%; text-transform: uppercase; letter-spacing: -.025em; }
+
+/* arrival gate */
+.gate { position: fixed; inset: 0; z-index: 55; display: grid; place-content: center; justify-items: center; text-align: center; gap: 14px; padding: 24px;
+  background: radial-gradient(ellipse at 50% 60%, rgb(36 22 13 / .96), rgb(8 5 3 / .99) 70%); color: #fffaf2; transition: opacity 1.2s ease, transform 1.4s cubic-bezier(.2,.7,.2,1); }
+.gate.open { opacity: 0; transform: scale(1.06); pointer-events: none; }
+.gate[hidden] { display: none; }
+.gate-k { font: 500 .78rem var(--mono); letter-spacing: .3em; text-transform: uppercase; color: #e6b986; opacity: 0; animation: up 1.2s .3s forwards; }
+.gate-title { font: 900 clamp(2.6rem, 10.5vw, 9rem)/.85 var(--display); font-stretch: 112%; letter-spacing: -.03em; text-transform: uppercase; opacity: 0; animation: up 1.6s .6s forwards; }
+.gate-line { font: italic 400 clamp(1.2rem, 2.4vw, 1.7rem) var(--ital); color: #f0dcc4; opacity: 0; animation: up 1.2s 1.2s forwards; }
+.gate-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; opacity: 0; animation: up 1s 1.7s forwards; }
+.gate-btn { font: 800 .8rem var(--display); font-stretch: 125%; letter-spacing: .22em; text-transform: uppercase; padding: 1.1em 1.8em; border-radius: 999px; border: 1px solid rgb(255 250 242 / .4); background: transparent; color: #fffaf2; cursor: pointer; transition: background .3s, border-color .3s, transform .2s; }
+.gate-btn:hover { border-color: #e6b986; }
+.gate-btn.solid { background: #e6b986; border-color: #e6b986; color: #1b120c; }
+.gate-btn.solid:hover { background: #f0c998; }
+.gate-tip { margin-top: 18px; font: 400 .72rem var(--mono); letter-spacing: .18em; text-transform: uppercase; color: #8f7c69; opacity: 0; animation: up 1s 2.4s forwards; }
+/* nothing in the hero starts until you’re in */
+.gated .hero-photo, .gated .hero-kicker, .gated .hero h1, .gated .hero-scroll { animation-play-state: paused; }
+
+/* where you are on the trip */
+.hud { position: fixed; left: clamp(12px, 3vw, 28px); bottom: 16px; z-index: 38; display: flex; align-items: center; gap: 10px; font: 500 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: rgb(255 250 242 / .75); pointer-events: none;
+  padding: 7px 12px; border-radius: 999px; background: rgb(12 7 4 / .55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgb(255 240 220 / .08); }
+.hud-place { color: #e6b986; min-width: 9ch; }
+.hud-bar { width: 80px; height: 2px; background: rgb(255 255 255 / .15); border-radius: 2px; overflow: hidden; }
+.hud-bar i { display: block; height: 100%; background: #e6b986; transform-origin: left; transform: scaleX(0); }
+.gated .hud, body.menu-open .hud { opacity: 0; }
+.for-touch { display: none; }
+@media (hover: none) { .for-mouse { display: none; } .for-touch { display: inline; } }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1020px) {
